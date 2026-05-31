@@ -1,0 +1,253 @@
+
+Online Banking Technical Officer
+
+Addis Ababa, Ethiopia
+
+male,
+
+25
+
+
+
+Bio
+
+Software Engineer | Full-Stack Developer
+I am a Software Engineer with a B.Sc. and a strong academic record (CGPA 3.86). I specialize in building scalable, user-centric applications using Laravel, Flutter, and Next.js.
+
+With a professional background in banking digital systems, I bridge the gap between robust backend logic and seamless mobile/web experiences. My project history ranges from academic management systems to community-focused platforms like Gitsawe. I am passionate about clean code, efficient architecture, and solving complex problems through technology.
+
+Service
+
+Information Technology
+IT support
+IT project management
+Database administration
+Data backup and recovery
+Skills
+
+Database Backup, Recovery & Availability
+|
+Intermediate
+
+Apple Developer Tools & Services
+|
+Intermediate
+
+Laravel
+|
+Intermediate
+
+Network Security Design
+|
+Intermediate
+
+Software Testing
+|
+Intermediate
+
+Project Management
+|
+Intermediate
+
+Teamwork
+|
+Intermediate
+
+Git
+|
+Intermediate
+
+Java
+|
+Intermediate
+
+Work Experiences
+
+Online Banking Technical Officer
+
+Enat Bank - Full Time | Onsite
+
+September, 2025 - Present
+
+Database Backup, Recovery & Availability
+Software Testing
+Apple Developer Tools & Services
+Postgres, MSSQL, MySQL and mysql lite database management, query, visualise using metabase and jasper reporting tools usage and management.
+
+Portfolio
+
+My Personal Portfolio:https://hailemariam-eyayu.vercel.app/
+
+Software Testing
+Gitsawe is a comprehensive digital platform developed by Hailemariam Eyayu, designed to modernize access to Ethiopian Orthodox Tewahedo Church services.
+
+Core Functions
+Daily Readings: Provides organized access to Gitsawe and Sinksar readings based on the church calendar.
+
+Multi-Platform Access: Available as a web app, mobile apps (Android/iOS), and an automated Telegram bot.
+
+Automation: Uses Cron Jobs to automatically broadcast daily spiritual content to users via Telegram.
+
+Spiritual Tools: Includes a prayer book library, a Bahire Hasab calculator (church era counting), and an Ethiopian calendar.
+
+Development & Stack
+The system demonstrates a robust full-stack architecture:
+
+Backend: Node.js, Express, and MongoDB.
+
+Frontend: React, Next.js, and Tailwind CSS.
+
+Mobile: Flutter and React Native (Expo).
+
+This project showcases the seamless integration of modern software engineering with traditional cultural and religious needs. Read less
+
+Education
+
+Debre Markos University
+
+Software Engineering - Bachelor’s Degree
+
+June, 2021 - July, 2025
+
+I earned my B.Sc. in Software Engineering from Debre Markos University, graduating with a distinguished CGPA of 3.86 and Exit 77%. The program provided a rigorous academic foundation, balancing theoretical computer science with hands-on engineering principles.
+
+Core Concepts & Skills
+Software Development: Mastered full-stack development, focusing on scalable architectures using Laravel, and Next.js.
+Systems Engineering: Gained deep insights into database management (MySQL/MongoDB), operating systems, and networking.
+Algorithm Design: Focused on data structures and efficient problem-solving logic.
+Project Management: Applied Agile methodologies and clean code practices through high-impact projects.
+
+Specialized Projects: Developed a Dormitory Management System and the Gitsawe platform, integrating backend logic with user-centric mobile and web interfaces.
+
+This education equipped me with the technical proficiency to manage digital systems and build enterprise-level applications. Read less
+
+Certifications
+
+Data Analysis Fundamentals:https://www.udacity.com/certificate/e/477f40e6-fef3-11f0-9a10-a788abb753c3
+
+
+5 Million Ethiopian coders
+
+January, 2026
+
+Focused on transforming raw data into actionable insights, this program covers the data science workflow using Python. Key skills include data cleaning, exploratory data analysis (EDA), and data visualization using libraries like Pandas, NumPy, and Matplotlib. This certification demonstrates the ability to identify trends and patterns that drive informed decision-making in technical and business environments. Read less
+
+Artificial Intelligence Fundamentals:https://www.udacity.com/certificate/e/fd8e4dce-fef2-11f0-9217-cbfe76effe13
+
+
+5 Million Ethiopian coders
+
+January, 2026
+
+This certification explores the core concepts of Machine Learning and AI programming. It provides a solid introduction to building and training models, understanding neural networks, and the ethics of AI. This training equips me to integrate intelligent features into applications, such as predictive analytics and automated decision-making processes. Read less
+
+Understanding of phishing:https://media.licdn.com/dms/image/v2/D4E2DAQFvRUCfW-V5xg/profile-treasury-image-shrink_1920_1920/B4EZnoM3trKkAc-/0/1760537314937?e=1780830000&v=beta&t=T29Ab1ZMgV4QEoSGcNezxud16kdyDgjKowEGKUmn1FQ
+
+
+Enat Bank SC
+
+October, 2025
+
+This certificate confirms your specialized training in Cybersecurity and Information Security, specifically focusing on Phishing Awareness at Enat Bank SC.
+
+Core Focus Areas
+Threat Identification: Identifying various phishing techniques, including email spoofing, spear phishing, and social engineering.
+
+Digital Defense: Implementing best practices to safeguard sensitive banking data and personal information from unauthorized access.
+
+Risk Mitigation: Understanding the mechanics of malicious links and attachments to prevent data breaches in a high-security financial environment.
+
+Security Compliance: Aligning with institutional security protocols to maintain a resilient digital banking infrastructure.
+
+This certification highlights your commitment to maintaining high security standards and protecting digital assets within the banking sector. Read less
+
+Android Developer Fundamentals:https://www.udacity.com/certificate/e/6bd68c30-a8e8-11f0-815e-f32226b60a26
+
+
+5 Million Ethiopian coders
+
+October, 2025
+
+This certification focuses on the essentials of mobile application development using Kotlin and Android Studio. It covers the entire lifecycle of an app, including designing responsive user interfaces (XML/Compose), managing background tasks, and integrating local databases with SQLite. This training validates the ability to build high-performance, native Android applications ready for the Google Play Store. Read less
+
+Programming Fundamentals:https://www.udacity.com/certificate/e/dbf78e5c-ff31-11f0-ac6d-93989d3270fb
+
+
+5 Million Ethiopian coders
+
+October, 2025
+
+This foundational certificate validates core logical and problem-solving skills essential for any software engineer. It covers the building blocks of modern development, including data structures, algorithms, and version control (Git). By mastering these concepts, I have established a language-agnostic understanding of clean code practices, ensuring high scalability and maintainability in complex software systems. Read less
+
+How to Study Effectively:https://lms.courses.dmu.edu.et/certificates/56f2cb3ca580485da3e9aafb3acb85b7
+
+
+DMU with MOE
+
+November, 2024
+
+This course provides scientific strategies for rapid skill acquisition. It covers critical reading, active note-taking, and memory retention techniques, which are vital for staying updated in the fast-moving software industry. Read less
+
+Keeping Yourself Safe Online:https://lms.courses.dmu.edu.et/certificates/0a31007922ec42a9846e8f5b89e62ef3
+
+
+DMU with MOE
+
+November, 2024
+
+Focused on Cybersecurity, this course covers identifying common online threats, protecting personal data, and maintaining professional digital hygiene. It is essential for safely navigating the modern web and cloud-based platforms. Read less
+
+Strategies for Successful Online Learning:https://lms.courses.dmu.edu.et/certificates/35cf8042986d4a67a757513dce855208
+
+
+DMU with MOE
+
+November, 2024
+
+The capstone of the suite, this course focuses on Digital Competence and Netiquette. It teaches professional communication in virtual teams and the self-discipline required to succeed in remote work and online environments. Read less
+
+Set Goals to Manage Your Time:https://lms.courses.dmu.edu.et/certificates/982737447a06479e93785f47d306a9fc
+
+
+DMU with MOE
+
+November, 2024
+
+A productivity-focused course that introduces strategic tools for time management. It covers goal-setting frameworks to help prioritize high-impact tasks and achieve project milestones within tight deadlines. Read less
+
+How to Evaluate Resources:https://lms.courses.dmu.edu.et/certificates/ed90fb5d946f4c42874e9efda89112bf
+
+
+DMU with MOE
+
+November, 2024
+
+This training builds critical thinking skills to differentiate between reliable and unreliable information online. It is key for research and ensuring that technical decisions are based on verified, high-quality data. Read less
+
+Academic Integrity:https://lms.courses.dmu.edu.et/certificates/02466361a70f4e9f8a165b19cf91fdba
+
+
+DMU with MOE
+
+November, 2024
+
+This course explores the importance of ethical standards in education and work. It covers referencing sources and avoiding plagiarism, ensuring that all professional and academic output meets international integrity standards. Read less
+
+How to Take a Course:https://lms.courses.dmu.edu.et/certificates/f22b4242ed12497c92dd75ed441379b1
+
+
+DMU with MOE
+
+November, 2024
+
+This course provides a comprehensive walkthrough of the Learning Management System (LMS). It ensures proficiency in navigating digital learning environments, using interactive tools, and managing online coursework efficiently. Read less
+
+Languages
+
+Amharic
+
+Native / Bilingual proficiency
+
+English
+
+Professional working proficiency
