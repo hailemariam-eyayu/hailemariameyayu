@@ -13,8 +13,10 @@ const allowedCorsOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN 
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+// Temporarily allow all origins until the deployment is stable.
+// Restore origin restrictions in production by using CORS_ORIGIN or CORS_ORIGINS.
 const corsOptions = {
-  origin: allowedCorsOrigins.length > 0 ? allowedCorsOrigins : true,
+  origin: true,
   credentials: true,
 };
 
