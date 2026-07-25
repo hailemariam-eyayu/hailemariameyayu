@@ -13,22 +13,13 @@ const allowedCorsOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN 
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-app.use(
-  cors(
-    allowedCorsOrigins.length > 0
-      ? {
-          origin: (origin, callback) => {
-            if (!origin || allowedCorsOrigins.includes(origin) || allowedCorsOrigins.includes('*')) {
-              callback(null, true);
-              return;
-            }
-            callback(new Error(`Origin not allowed by CORS: ${origin}`));
-          },
-          credentials: true,
-        }
-      : undefined
-  )
-);
+const corsOptions = {
+  origin: allowedCorsOrigins.length > 0 ? allowedCorsOrigins : true,
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 
 // ── Passcode middleware ───────────────────────────────────────────────────────
