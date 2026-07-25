@@ -105,6 +105,16 @@ function ProfileTab({ passcode, initialProfile }: { passcode: string; initialPro
     setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((p) => ({ ...p, image_url: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleQuickFacts = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const lines = e.target.value.split('\n').filter((l) => l.trim());
     setForm((p) => ({ ...p, quick_facts: lines }));
@@ -144,12 +154,41 @@ function ProfileTab({ passcode, initialProfile }: { passcode: string; initialPro
         <Field label="CGPA" name="cgpa" value={form.cgpa} onChange={handleChange} />
         <Field label="University" name="university" value={form.university} onChange={handleChange} />
         <Field label="University Period" name="uni_period" value={form.uni_period} onChange={handleChange} />
-        <Field label="Current Role" name="current_role" value={form.current_role} onChange={handleChange} />
+        <Field label="Job Title" name="job_title" value={(form as any).job_title ?? ''} onChange={handleChange} />
         <Field label="Employer" name="employer" value={form.employer} onChange={handleChange} />
         <Field label="Work Period" name="work_period" value={form.work_period} onChange={handleChange} />
         <Field label="CV URL (View online)" name="cv_url" value={form.cv_url} onChange={handleChange} />
         <Field label="Resume Path (download)" name="resume_path" value={form.resume_path} onChange={handleChange} />
-        <Field label="Profile Image URL" name="image_url" value={form.image_url} onChange={handleChange} />
+      </div>
+
+      {/* Profile Image Upload */}
+      <div>
+        <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wider">
+          Profile Image
+        </label>
+        <div className="flex items-center gap-4 p-3 bg-dark-600/40 border border-white/10 rounded-xl">
+          <img
+            src={form.image_url || '/images/HME.png'}
+            alt="Preview"
+            className="w-16 h-16 rounded-full object-cover border-2 border-white/10 flex-shrink-0"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/HME.png'; }}
+          />
+          <div className="flex-1 min-w-0">
+            <label className="cursor-pointer inline-flex items-center gap-2 bg-dark-500 border border-white/10 text-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-dark-400 hover:text-white transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Choose Photo
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </label>
+            <p className="text-xs text-gray-600 mt-1">JPG, PNG, WEBP — saved to DB as base64</p>
+          </div>
+        </div>
       </div>
 
       <div>

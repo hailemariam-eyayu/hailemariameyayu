@@ -10,7 +10,7 @@ export default function About() {
     { label: 'Degree',       value: profile.degree },
     { label: 'CGPA',         value: profile.cgpa },
     { label: 'University',   value: profile.university },
-    { label: 'Current Role', value: profile.current_role },
+    { label: 'Current Role', value: (profile as any).job_title ?? (profile as any).current_role },
     { label: 'Employer',     value: profile.employer },
     { label: 'Location',     value: profile.location },
     { label: 'Languages',    value: profile.languages },
@@ -86,7 +86,7 @@ export default function About() {
               </div>
               <div>
                 <h3 className="text-white font-semibold mb-1">Current Role</h3>
-                <p className="text-green-400 text-sm font-medium">{profile.current_role}</p>
+                <p className="text-green-400 text-sm font-medium">{(profile as any).job_title ?? (profile as any).current_role}</p>
                 <p className="text-gray-500 text-sm">{profile.employer} · {profile.work_period}</p>
                 <div className="flex items-center gap-1 mt-1">
                   <span className="glow-dot w-1.5 h-1.5" />
