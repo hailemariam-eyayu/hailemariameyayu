@@ -95,6 +95,59 @@ app.put('/api/profile', requirePasscode, async (req, res) => {
   }
 });
 
+// ── Technologies (public) ─────────────────────────────────────────────────────
+app.get('/api/technologies', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM technologies ORDER BY name ASC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching technologies:', err);
+    res.status(500).json({ error: 'Failed to fetch technologies' });
+  }
+});
+
+// ── Technologies (admin add) ──────────────────────────────────────────────────
+app.post('/api/technologies', requirePasscode, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name?.trim()) return res.status(400).json({ error: 'Name is required' });
+    const result = await pool.query(
+      'INSERT INTO technologies (name) VALUES ($1) ON CONFLICT (name) DO NOTHING RETURNING *',
+      [name.trim()]
+    );
+    if (result.rows.length === 0) return res.status(409).json({ error: 'Already exists' });
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add technology' });
+  }
+});
+
+// ── Technologies (admin update) ───────────────────────────────────────────────
+app.put('/api/technologies/:id', requirePasscode, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name?.trim()) return res.status(400).json({ error: 'Name is required' });
+    const result = await pool.query(
+      'UPDATE technologies SET name=$1 WHERE id=$2 RETURNING *',
+      [name.trim(), req.params.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update technology' });
+  }
+});
+
+// ── Technologies (admin delete) ───────────────────────────────────────────────
+app.delete('/api/technologies/:id', requirePasscode, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM technologies WHERE id=$1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete technology' });
+  }
+});
+
 // ── Stats (public) ────────────────────────────────────────────────────────────
 app.get('/api/stats', async (req, res) => {
   try {

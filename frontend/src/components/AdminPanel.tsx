@@ -3,7 +3,8 @@ import type { Profile, Project, Stats } from '../types';
 import {
   adminLogin, updateProfile, fetchProjects, addProject,
   updateProject, deleteProject, fetchStats, updateStats,
-  fetchInquiries,
+  fetchInquiries, fetchTechnologies, addTechnology,
+  updateTechnology, deleteTechnology,
 } from '../api';
 import { useProfileContext } from '../context/ProfileContext';
 
@@ -492,13 +493,145 @@ function InquiriesTab({ passcode }: { passcode: string }) {
   );
 }
 
+// ── Tab: Technologies ─────────────────────────────────────────────────────────
+
+function TechnologiesTab({ passcode }: { passcode: string }) {
+  const [techs, setTechs] = useState<{ id: number; name: string }[]>([]);
+  const [newName, setNewName] = useState('');
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingName, setEditingName] = useState('');
+  const [msg, setMsg] = useState('');
+
+  useEffect(() => {
+    fetchTechnologies().then(setTechs).catch(() => {});
+  }, []);
+
+  const handleAdd = async () => {
+    if (!newName.trim()) return;
+    setMsg('');
+    try {
+      const created = await addTechnology(newName.trim(), passcode);
+      setTechs((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+      setNewName('');
+      setMsg('✅ Added!');
+    } catch (err) {
+      setMsg('❌ ' + (err instanceof Error ? err.message : 'Error'));
+    }
+  };
+
+  const handleUpdate = async (id: number) => {
+    if (!editingName.trim()) return;
+    setMsg('');
+    try {
+      const updated = await updateTechnology(id, editingName.trim(), passcode);
+      setTechs((prev) => prev.map((t) => (t.id === id ? updated : t)));
+      setEditingId(null);
+      setMsg('✅ Updated!');
+    } catch (err) {
+      setMsg('❌ ' + (err instanceof Error ? err.message : 'Error'));
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this technology?')) return;
+    setMsg('');
+    try {
+      await deleteTechnology(id, passcode);
+      setTechs((prev) => prev.filter((t) => t.id !== id));
+      setMsg('✅ Deleted!');
+    } catch (err) {
+      setMsg('❌ ' + (err instanceof Error ? err.message : 'Error'));
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Add new */}
+      <div className="flex gap-2">
+        <input
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+          placeholder="New technology name..."
+          className="input-field flex-1 text-sm"
+        />
+        <button onClick={handleAdd} className="btn-primary px-4 text-sm whitespace-nowrap">
+          + Add
+        </button>
+      </div>
+
+      {msg && (
+        <p className={`text-sm ${msg.startsWith('✅') ? 'text-green-400' : 'text-red-400'}`}>{msg}</p>
+      )}
+
+      {/* List */}
+      <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1">
+        {techs.map((tech) => (
+          <div key={tech.id} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/5 bg-dark-600/40 group">
+            {editingId === tech.id ? (
+              <>
+                <input
+                  autoFocus
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleUpdate(tech.id);
+                    if (e.key === 'Escape') setEditingId(null);
+                  }}
+                  className="input-field flex-1 text-sm py-1"
+                />
+                <button
+                  onClick={() => handleUpdate(tech.id)}
+                  className="text-green-400 hover:text-green-300 text-xs font-semibold px-2"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setEditingId(null)}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-1"
+                >
+                  ✕
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="flex-1 text-sm text-gray-300">{tech.name}</span>
+                <button
+                  onClick={() => { setEditingId(tech.id); setEditingName(tech.name); setMsg(''); }}
+                  className="opacity-0 group-hover:opacity-100 text-blue-400 hover:text-blue-300 transition-all p-1"
+                  aria-label="Edit"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => handleDelete(tech.id)}
+                  className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all p-1"
+                  aria-label="Delete"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-gray-600">{techs.length} technologies • hover to edit/delete</p>
+    </div>
+  );
+}
+
 // ── Main Admin Panel ──────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'profile', label: '👤 About & Contact' },
-  { id: 'stats',   label: '📊 Stats' },
-  { id: 'projects',label: '🚀 Projects' },
-  { id: 'inquiries',label: '📬 Inquiries' },
+  { id: 'profile',      label: '👤 About & Contact' },
+  { id: 'stats',        label: '📊 Stats' },
+  { id: 'projects',     label: '🚀 Projects' },
+  { id: 'technologies', label: '🛠️ Technologies' },
+  { id: 'inquiries',    label: '📬 Inquiries' },
 ];
 
 export default function AdminPanel({ onClose }: { onClose: () => void }) {
@@ -563,10 +696,11 @@ export default function AdminPanel({ onClose }: { onClose: () => void }) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          {activeTab === 'profile'   && <ProfileTab  passcode={passcode} initialProfile={profile} />}
-          {activeTab === 'stats'     && <StatsTab     passcode={passcode} />}
-          {activeTab === 'projects'  && <ProjectsTab  passcode={passcode} />}
-          {activeTab === 'inquiries' && <InquiriesTab passcode={passcode} />}
+          {activeTab === 'profile'      && <ProfileTab      passcode={passcode} initialProfile={profile} />}
+          {activeTab === 'stats'        && <StatsTab        passcode={passcode} />}
+          {activeTab === 'projects'     && <ProjectsTab     passcode={passcode} />}
+          {activeTab === 'technologies' && <TechnologiesTab passcode={passcode} />}
+          {activeTab === 'inquiries'    && <InquiriesTab    passcode={passcode} />}
         </div>
       </div>
     </div>

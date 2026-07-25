@@ -171,7 +171,28 @@ async function initDb() {
       console.log('Seeded settings table.');
     }
 
-    // ── Seed profile ──────────────────────────────────────────────────────────
+    // ── Technologies table ────────────────────────────────────────────────────
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS technologies (
+        id   SERIAL PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE
+      )
+    `);
+
+    // ── Seed technologies ─────────────────────────────────────────────────────
+    const techCount = await client.query('SELECT COUNT(*) FROM technologies');
+    if (parseInt(techCount.rows[0].count) === 0) {
+      const defaultTechs = [
+        'HTML5','CSS3','JavaScript','TypeScript','React','Next.js',
+        'Flutter','Dart','Laravel','PHP','Node.js','Express.js',
+        'MySQL','PostgreSQL','MongoDB','SQLite','Git','Docker',
+        'Tailwind CSS','Bootstrap','Figma','REST API','GraphQL','CI/CD',
+      ];
+      for (const name of defaultTechs) {
+        await client.query('INSERT INTO technologies (name) VALUES ($1) ON CONFLICT DO NOTHING', [name]);
+      }
+      console.log('Seeded technologies table.');
+    }
     const profileCount = await client.query('SELECT COUNT(*) FROM profile');
     if (parseInt(profileCount.rows[0].count) === 0) {
       await client.query(`

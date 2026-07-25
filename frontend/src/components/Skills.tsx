@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { useReveal } from '../hooks/useReveal';
+import { fetchTechnologies } from '../api';
 
 const SKILL_CATEGORIES = [
   {
@@ -43,16 +45,8 @@ const SKILL_CATEGORIES = [
   },
 ];
 
-const TECH_BADGES = [
-  'HTML5', 'CSS3', 'JavaScript', 'TypeScript', 'React', 'Next.js',
-  'Flutter', 'Dart', 'Laravel', 'PHP', 'Node.js', 'Express.js',
-  'MySQL', 'PostgreSQL', 'MongoDB', 'SQLite', 'Git', 'Docker',
-  'Tailwind CSS', 'Bootstrap', 'Figma', 'REST API', 'GraphQL', 'CI/CD',
-];
-
 function SkillBar({ name, level }: { name: string; level: number }) {
   const ref = useReveal();
-
   return (
     <div ref={ref} className="reveal">
       <div className="flex justify-between mb-1.5">
@@ -71,6 +65,21 @@ function SkillBar({ name, level }: { name: string; level: number }) {
 
 export default function Skills() {
   const titleRef = useReveal();
+  const [techBadges, setTechBadges] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchTechnologies()
+      .then((data) => setTechBadges(data.map((t) => t.name)))
+      .catch(() => {
+        // fallback to defaults if API unavailable
+        setTechBadges([
+          'HTML5', 'CSS3', 'JavaScript', 'TypeScript', 'React', 'Next.js',
+          'Flutter', 'Dart', 'Laravel', 'PHP', 'Node.js', 'Express.js',
+          'MySQL', 'PostgreSQL', 'MongoDB', 'SQLite', 'Git', 'Docker',
+          'Tailwind CSS', 'Bootstrap', 'Figma', 'REST API', 'GraphQL', 'CI/CD',
+        ]);
+      });
+  }, []);
 
   return (
     <section id="skills" className="py-24 bg-dark-800/30">
@@ -98,11 +107,11 @@ export default function Skills() {
           ))}
         </div>
 
-        {/* Tech badges */}
+        {/* Tech badges — from DB */}
         <div className="text-center">
           <p className="text-gray-500 text-sm mb-6 uppercase tracking-wider">All Technologies</p>
           <div className="flex flex-wrap gap-3 justify-center">
-            {TECH_BADGES.map((tech) => (
+            {techBadges.map((tech) => (
               <span key={tech} className="skill-badge">
                 {tech}
               </span>

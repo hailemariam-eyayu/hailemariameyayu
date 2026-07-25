@@ -90,6 +90,48 @@ export async function updateStats(data: Partial<Stats>, passcode: string): Promi
   return res.json();
 }
 
+// ── Technologies ─────────────────────────────────────────────────────────────
+
+export async function fetchTechnologies(): Promise<{ id: number; name: string }[]> {
+  const res = await fetch(`${BASE_URL}/api/technologies`);
+  if (!res.ok) throw new Error('Failed to fetch technologies');
+  return res.json();
+}
+
+export async function addTechnology(name: string, passcode: string) {
+  const res = await fetch(`${BASE_URL}/api/technologies`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error || 'Failed to add');
+  }
+  return res.json();
+}
+
+export async function updateTechnology(id: number, name: string, passcode: string) {
+  const res = await fetch(`${BASE_URL}/api/technologies/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error || 'Failed to update');
+  }
+  return res.json();
+}
+
+export async function deleteTechnology(id: number, passcode: string) {
+  const res = await fetch(`${BASE_URL}/api/technologies/${id}`, {
+    method: 'DELETE',
+    headers: { 'x-admin-passcode': passcode },
+  });
+  if (!res.ok) throw new Error('Failed to delete technology');
+}
+
 // ── Admin login ───────────────────────────────────────────────────────────────
 
 export async function adminLogin(passcode: string): Promise<boolean> {
