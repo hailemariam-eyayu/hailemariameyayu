@@ -32,7 +32,6 @@ export default function Hero() {
   }, [displayed, deleting, roleIndex]);
 
   const firstName = profile.full_name.split(' ')[0] || 'Hailemariam';
-  const telegramHandle = profile.telegram?.replace('https://t.me/', '@') ?? '';
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">

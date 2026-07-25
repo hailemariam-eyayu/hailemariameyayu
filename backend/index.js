@@ -8,7 +8,27 @@ const app = express();
 const PORT = process.env.PORT || 3002;
 const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE || 'admin1234';
 
-app.use(cors());
+const allowedCorsOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors(
+    allowedCorsOrigins.length > 0
+      ? {
+          origin: (origin, callback) => {
+            if (!origin || allowedCorsOrigins.includes(origin) || allowedCorsOrigins.includes('*')) {
+              callback(null, true);
+              return;
+            }
+            callback(new Error(`Origin not allowed by CORS: ${origin}`));
+          },
+          credentials: true,
+        }
+      : undefined
+  )
+);
 app.use(express.json());
 
 // ── Passcode middleware ───────────────────────────────────────────────────────
