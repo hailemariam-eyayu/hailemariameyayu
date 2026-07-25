@@ -36,7 +36,7 @@ export interface Profile {
   cgpa: string;
   university: string;
   uni_period: string;
-  current_role: string;
+  job_title: string;
   employer: string;
   work_period: string;
   languages: string;

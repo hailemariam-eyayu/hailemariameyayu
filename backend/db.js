@@ -57,7 +57,7 @@ async function initDb() {
         cgpa            VARCHAR(50)           DEFAULT '',
         university      VARCHAR(255)          DEFAULT '',
         uni_period      VARCHAR(255)          DEFAULT '',
-        current_role    VARCHAR(255)          DEFAULT '',
+        job_title       VARCHAR(255)          DEFAULT '',
         employer        VARCHAR(255)          DEFAULT '',
         work_period     VARCHAR(255)          DEFAULT '',
         languages       VARCHAR(255)          DEFAULT '',
@@ -178,7 +178,7 @@ async function initDb() {
         INSERT INTO profile (
           id, full_name, tagline, bio, email, phone, telegram, github,
           location, degree, cgpa, university, uni_period,
-          current_role, employer, work_period, languages,
+          job_title, employer, work_period, languages,
           cv_url, resume_path, image_url, quick_facts
         ) VALUES (
           1,

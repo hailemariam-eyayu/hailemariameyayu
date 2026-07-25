@@ -17,7 +17,7 @@ export const DEFAULT_PROFILE: Profile = {
   cgpa: '3.86 / 4.0',
   university: 'Debre Markos University',
   uni_period: 'June 2021 – July 2025',
-  current_role: 'Online Banking Technical Officer',
+  job_title: 'Online Banking Technical Officer',
   employer: 'Enat Bank',
   work_period: 'September 2025 – Present',
   languages: 'Amharic, English',

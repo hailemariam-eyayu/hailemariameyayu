@@ -13,10 +13,14 @@ const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE || 'admin1234';
 //   .map((origin) => origin.trim())
 //   .filter(Boolean);
 
-// Temporarily allow all origins until the deployment is stable.
-// Restore origin restrictions in production by using CORS_ORIGIN or CORS_ORIGINS.
-app.use(cors());
-app.options('*', cors());
+// Allow ALL origins — no restrictions
+const corsOptions = {
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'x-admin-passcode'],
+};
+app.use(cors(corsOptions));
+app.options(/(.*)/, cors(corsOptions));
 app.use(express.json());
 
 // ── Passcode middleware ───────────────────────────────────────────────────────
@@ -58,7 +62,7 @@ app.put('/api/profile', requirePasscode, async (req, res) => {
     const {
       full_name, tagline, bio, email, phone, telegram, github,
       location, degree, cgpa, university, uni_period,
-      current_role, employer, work_period, languages,
+      job_title, employer, work_period, languages,
       cv_url, resume_path, image_url, quick_facts,
     } = req.body;
 
@@ -66,20 +70,20 @@ app.put('/api/profile', requirePasscode, async (req, res) => {
       `INSERT INTO profile (
         id, full_name, tagline, bio, email, phone, telegram, github,
         location, degree, cgpa, university, uni_period,
-        current_role, employer, work_period, languages,
+        job_title, employer, work_period, languages,
         cv_url, resume_path, image_url, quick_facts
       ) VALUES (1,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
       ON CONFLICT (id) DO UPDATE SET
         full_name=$1, tagline=$2, bio=$3, email=$4, phone=$5,
         telegram=$6, github=$7, location=$8, degree=$9, cgpa=$10,
-        university=$11, uni_period=$12, current_role=$13, employer=$14,
+        university=$11, uni_period=$12, job_title=$13, employer=$14,
         work_period=$15, languages=$16, cv_url=$17, resume_path=$18,
         image_url=$19, quick_facts=$20
       RETURNING *`,
       [
         full_name, tagline, bio, email, phone ?? '', telegram ?? '', github ?? '',
         location ?? '', degree ?? '', cgpa ?? '', university ?? '', uni_period ?? '',
-        current_role ?? '', employer ?? '', work_period ?? '', languages ?? '',
+        job_title ?? '', employer ?? '', work_period ?? '', languages ?? '',
         cv_url ?? '', resume_path ?? '', image_url ?? '',
         quick_facts ?? [],
       ]
