@@ -21,3 +21,27 @@ export interface Inquiry {
   email: string;
   message: string;
 }
+
+export interface Profile {
+  id: number;
+  full_name: string;
+  tagline: string;
+  bio: string;
+  email: string;
+  phone: string;
+  telegram: string;
+  github: string;
+  location: string;
+  degree: string;
+  cgpa: string;
+  university: string;
+  uni_period: string;
+  current_role: string;
+  employer: string;
+  work_period: string;
+  languages: string;
+  cv_url: string;
+  resume_path: string;
+  image_url: string;
+  quick_facts: string[];
+}

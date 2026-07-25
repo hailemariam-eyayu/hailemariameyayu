@@ -9,7 +9,8 @@ const pool = new Pool({
 async function initDb() {
   const client = await pool.connect();
   try {
-    // Create tables
+    // ── Existing tables ───────────────────────────────────────────────────────
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS projects (
         id SERIAL PRIMARY KEY,
@@ -40,7 +41,34 @@ async function initDb() {
       )
     `);
 
-    // Seed projects if empty
+    // ── Profile table (single row, id=1) ──────────────────────────────────────
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS profile (
+        id INTEGER PRIMARY KEY DEFAULT 1,
+        full_name       VARCHAR(255) NOT NULL DEFAULT '',
+        tagline         TEXT         NOT NULL DEFAULT '',
+        bio             TEXT         NOT NULL DEFAULT '',
+        email           VARCHAR(255) NOT NULL DEFAULT '',
+        phone           VARCHAR(100)          DEFAULT '',
+        telegram        VARCHAR(255)          DEFAULT '',
+        github          VARCHAR(255)          DEFAULT '',
+        location        VARCHAR(255)          DEFAULT '',
+        degree          VARCHAR(255)          DEFAULT '',
+        cgpa            VARCHAR(50)           DEFAULT '',
+        university      VARCHAR(255)          DEFAULT '',
+        uni_period      VARCHAR(255)          DEFAULT '',
+        current_role    VARCHAR(255)          DEFAULT '',
+        employer        VARCHAR(255)          DEFAULT '',
+        work_period     VARCHAR(255)          DEFAULT '',
+        languages       VARCHAR(255)          DEFAULT '',
+        cv_url          VARCHAR(500)          DEFAULT '',
+        resume_path     VARCHAR(500)          DEFAULT '',
+        image_url       VARCHAR(500)          DEFAULT '',
+        quick_facts     TEXT[]                DEFAULT '{}'
+      )
+    `);
+
+    // ── Seed projects ─────────────────────────────────────────────────────────
     const projectCount = await client.query('SELECT COUNT(*) FROM projects');
     if (parseInt(projectCount.rows[0].count) === 0) {
       await client.query(`
@@ -129,7 +157,7 @@ async function initDb() {
       console.log('Seeded projects table with 10 projects.');
     }
 
-    // Seed settings if empty
+    // ── Seed settings ─────────────────────────────────────────────────────────
     const settingsCount = await client.query('SELECT COUNT(*) FROM settings');
     if (parseInt(settingsCount.rows[0].count) === 0) {
       await client.query(`
@@ -141,6 +169,42 @@ async function initDb() {
         ('satisfied_clients', 20)
       `);
       console.log('Seeded settings table.');
+    }
+
+    // ── Seed profile ──────────────────────────────────────────────────────────
+    const profileCount = await client.query('SELECT COUNT(*) FROM profile');
+    if (parseInt(profileCount.rows[0].count) === 0) {
+      await client.query(`
+        INSERT INTO profile (
+          id, full_name, tagline, bio, email, phone, telegram, github,
+          location, degree, cgpa, university, uni_period,
+          current_role, employer, work_period, languages,
+          cv_url, resume_path, image_url, quick_facts
+        ) VALUES (
+          1,
+          'Hailemariam Eyayu',
+          'Passionate software engineer with 5+ years of experience building modern web and mobile applications. I turn ideas into elegant, performant products.',
+          'Hello! I''m Hailemariam Eyayu, a Software Engineer and Full-Stack Developer based in Addis Ababa, Ethiopia. I hold a BSc in Software Engineering from Debre Markos University with a distinguished CGPA of 3.86. I currently work as an Online Banking Technical Officer at Enat Bank, where I bridge robust backend logic with seamless digital banking experiences. I specialize in Laravel, Flutter, and Next.js, and manage PostgreSQL, MSSQL, and MySQL databases.',
+          'hailemariameyayu@gmail.com',
+          '',
+          'https://t.me/hailemariam_eyayu',
+          'https://github.com/hailemariam-eyayu',
+          'Addis Ababa, Ethiopia',
+          'BSc Software Engineering',
+          '3.86 / 4.0',
+          'Debre Markos University',
+          'June 2021 – July 2025',
+          'Online Banking Technical Officer',
+          'Enat Bank',
+          'September 2025 – Present',
+          'Amharic, English',
+          'https://www.canva.com/design/DAGs2oZ685w/K_xVgJR2cBqwF32pHDof0g/edit',
+          '/downloads/Hailemariam_Eyayu_Resume.pdf',
+          '/images/HME.png',
+          '{"💡 Clean code & best practices advocate","🌍 Open-source contributor","📱 Cross-platform mobile developer","🔧 Full-stack web engineer"}'
+        )
+      `);
+      console.log('Seeded profile table.');
     }
 
     console.log('Database initialized successfully.');

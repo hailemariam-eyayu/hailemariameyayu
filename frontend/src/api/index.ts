@@ -1,6 +1,29 @@
-import type { Project, Stats, Inquiry } from '../types';
+import type { Project, Stats, Inquiry, Profile } from '../types';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+
+// ── Profile ───────────────────────────────────────────────────────────────────
+
+export async function fetchProfile(): Promise<Profile> {
+  const res = await fetch(`${BASE_URL}/api/profile`);
+  if (!res.ok) throw new Error('Failed to fetch profile');
+  return res.json();
+}
+
+export async function updateProfile(data: Partial<Profile>, passcode: string): Promise<Profile> {
+  const res = await fetch(`${BASE_URL}/api/profile`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error || 'Failed to update profile');
+  }
+  return res.json();
+}
+
+// ── Projects ──────────────────────────────────────────────────────────────────
 
 export async function fetchProjects(): Promise<Project[]> {
   const res = await fetch(`${BASE_URL}/api/projects`);
@@ -8,11 +31,77 @@ export async function fetchProjects(): Promise<Project[]> {
   return res.json();
 }
 
+export async function addProject(data: Omit<Project, 'id'>, passcode: string): Promise<Project> {
+  const res = await fetch(`${BASE_URL}/api/projects`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error || 'Failed to add project');
+  }
+  return res.json();
+}
+
+export async function updateProject(
+  id: number,
+  data: Partial<Project>,
+  passcode: string
+): Promise<Project> {
+  const res = await fetch(`${BASE_URL}/api/projects/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error || 'Failed to update project');
+  }
+  return res.json();
+}
+
+export async function deleteProject(id: number, passcode: string): Promise<void> {
+  const res = await fetch(`${BASE_URL}/api/projects/${id}`, {
+    method: 'DELETE',
+    headers: { 'x-admin-passcode': passcode },
+  });
+  if (!res.ok) throw new Error('Failed to delete project');
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+
 export async function fetchStats(): Promise<Stats> {
   const res = await fetch(`${BASE_URL}/api/stats`);
   if (!res.ok) throw new Error('Failed to fetch stats');
   return res.json();
 }
+
+export async function updateStats(data: Partial<Stats>, passcode: string): Promise<Stats> {
+  const res = await fetch(`${BASE_URL}/api/stats`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error || 'Failed to update stats');
+  }
+  return res.json();
+}
+
+// ── Admin login ───────────────────────────────────────────────────────────────
+
+export async function adminLogin(passcode: string): Promise<boolean> {
+  const res = await fetch(`${BASE_URL}/api/admin/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ passcode }),
+  });
+  return res.ok;
+}
+
+// ── Inquiries ─────────────────────────────────────────────────────────────────
 
 export async function submitInquiry(data: Inquiry): Promise<void> {
   const res = await fetch(`${BASE_URL}/api/inquiries`, {
@@ -22,6 +111,14 @@ export async function submitInquiry(data: Inquiry): Promise<void> {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || 'Failed to send message');
+    throw new Error((err as { error?: string }).error || 'Failed to send message');
   }
+}
+
+export async function fetchInquiries(passcode: string) {
+  const res = await fetch(`${BASE_URL}/api/inquiries`, {
+    headers: { 'x-admin-passcode': passcode },
+  });
+  if (!res.ok) throw new Error('Failed to fetch inquiries');
+  return res.json();
 }

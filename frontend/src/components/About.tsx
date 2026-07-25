@@ -1,7 +1,20 @@
 import { useReveal } from '../hooks/useReveal';
+import { useProfileContext } from '../context/ProfileContext';
 
 export default function About() {
   const ref = useReveal();
+  const { profile } = useProfileContext();
+
+  const infoGrid = [
+    { label: 'Name',         value: profile.full_name },
+    { label: 'Degree',       value: profile.degree },
+    { label: 'CGPA',         value: profile.cgpa },
+    { label: 'University',   value: profile.university },
+    { label: 'Current Role', value: profile.current_role },
+    { label: 'Employer',     value: profile.employer },
+    { label: 'Location',     value: profile.location },
+    { label: 'Languages',    value: profile.languages },
+  ].filter((item) => item.value);
 
   return (
     <section id="about" className="py-24 max-w-6xl mx-auto px-6">
@@ -13,39 +26,21 @@ export default function About() {
           <div className="w-16 h-1 bg-gradient-to-r from-primary-500 to-blue-400 rounded-full mb-8" />
 
           <div className="space-y-4 text-gray-400 leading-relaxed">
-            <p>
-              Hello! I'm <span className="text-white font-semibold">Hailemariam Eyayu</span>, a
-              Software Engineer and Full-Stack Developer based in{' '}
-              <span className="text-primary-400">Addis Ababa, Ethiopia</span>. I hold a BSc in
-              Software Engineering from{' '}
-              <span className="text-primary-400">Debre Markos University</span> with a distinguished
-              CGPA of <span className="text-white font-semibold">3.86</span>.
-            </p>
-            <p>
-              I currently work as an{' '}
-              <span className="text-white font-semibold">Online Banking Technical Officer</span> at{' '}
-              <span className="text-primary-400">Enat Bank</span>, where I bridge robust backend
-              logic with seamless digital banking experiences. I specialize in Laravel, Flutter, and
-              Next.js, and manage PostgreSQL, MSSQL, and MySQL databases.
-            </p>
-            <p>
-              I'm passionate about clean code, efficient architecture, and solving complex problems —
-              from academic management systems to community platforms like{' '}
-              <span className="text-primary-400">Gitsawe</span>.
-            </p>
+            {profile.bio
+              ? profile.bio.split('\n').filter(Boolean).map((para, i) => (
+                  <p key={i}>{para}</p>
+                ))
+              : (
+                <p>
+                  Hello! I'm <span className="text-white font-semibold">{profile.full_name}</span>,
+                  a Software Engineer and Full-Stack Developer based in{' '}
+                  <span className="text-primary-400">{profile.location}</span>.
+                </p>
+              )}
           </div>
 
           <div className="mt-8 grid grid-cols-2 gap-4">
-            {[
-              { label: 'Name', value: 'Hailemariam Eyayu' },
-              { label: 'Degree', value: 'BSc Software Engineering' },
-              { label: 'CGPA', value: '3.86 / 4.0' },
-              { label: 'University', value: 'Debre Markos University' },
-              { label: 'Current Role', value: 'Online Banking Tech Officer' },
-              { label: 'Employer', value: 'Enat Bank' },
-              { label: 'Location', value: 'Addis Ababa, Ethiopia 🇪🇹' },
-              { label: 'Languages', value: 'Amharic, English' },
-            ].map(({ label, value }) => (
+            {infoGrid.map(({ label, value }) => (
               <div key={label}>
                 <span className="text-xs text-gray-600 uppercase tracking-wider">{label}</span>
                 <p className="text-sm text-gray-300 font-medium mt-0.5">{value}</p>
@@ -53,26 +48,21 @@ export default function About() {
             ))}
           </div>
 
-          <div className="mt-8 flex gap-4">
-            <a
-              href="https://www.canva.com/design/DAGs2oZ685w/K_xVgJR2cBqwF32pHDof0g/edit"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary text-sm"
-            >
-              View CV
-            </a>
-            <a
-              href="/downloads/Hailemariam_Eyayu_Resume.pdf"
-              download
-              className="btn-outline text-sm"
-            >
-              Download Resume
-            </a>
+          <div className="mt-8 flex gap-4 flex-wrap">
+            {profile.cv_url && (
+              <a href={profile.cv_url} target="_blank" rel="noopener noreferrer" className="btn-primary text-sm">
+                View CV
+              </a>
+            )}
+            {profile.resume_path && (
+              <a href={profile.resume_path} download className="btn-outline text-sm">
+                Download Resume
+              </a>
+            )}
           </div>
         </div>
 
-        {/* Right: collaborator + education cards */}
+        {/* Right: cards */}
         <div className="space-y-4">
           {/* Education card */}
           <div className="card glow-on-hover">
@@ -82,8 +72,8 @@ export default function About() {
               </div>
               <div>
                 <h3 className="text-white font-semibold mb-1">Education</h3>
-                <p className="text-primary-400 text-sm font-medium">BSc Software Engineering · CGPA 3.86</p>
-                <p className="text-gray-500 text-sm">Debre Markos University · June 2021 – July 2025</p>
+                <p className="text-primary-400 text-sm font-medium">{profile.degree} · CGPA {profile.cgpa}</p>
+                <p className="text-gray-500 text-sm">{profile.university} · {profile.uni_period}</p>
               </div>
             </div>
           </div>
@@ -96,8 +86,8 @@ export default function About() {
               </div>
               <div>
                 <h3 className="text-white font-semibold mb-1">Current Role</h3>
-                <p className="text-green-400 text-sm font-medium">Online Banking Technical Officer</p>
-                <p className="text-gray-500 text-sm">Enat Bank · September 2025 – Present</p>
+                <p className="text-green-400 text-sm font-medium">{profile.current_role}</p>
+                <p className="text-gray-500 text-sm">{profile.employer} · {profile.work_period}</p>
                 <div className="flex items-center gap-1 mt-1">
                   <span className="glow-dot w-1.5 h-1.5" />
                   <span className="text-xs text-green-400">Full Time · Onsite</span>
@@ -107,22 +97,24 @@ export default function About() {
           </div>
 
           {/* Quick facts */}
-          <div className="card glow-on-hover">
-            <h3 className="text-white font-semibold mb-4">Quick Facts</h3>
-            <ul className="space-y-3">
-              {[
-                { icon: '💡', text: 'Clean code & best practices advocate' },
-                { icon: '🌍', text: 'Open-source contributor' },
-                { icon: '📱', text: 'Cross-platform mobile developer' },
-                { icon: '🔧', text: 'Full-stack web engineer' },
-              ].map(({ icon, text }) => (
-                <li key={text} className="flex items-center gap-3 text-gray-400 text-sm">
-                  <span>{icon}</span>
-                  <span>{text}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {profile.quick_facts?.length > 0 && (
+            <div className="card glow-on-hover">
+              <h3 className="text-white font-semibold mb-4">Quick Facts</h3>
+              <ul className="space-y-3">
+                {profile.quick_facts.map((fact, i) => {
+                  // fact may start with an emoji or "emoji text"
+                  const [icon, ...rest] = fact.split(' ');
+                  const text = rest.join(' ');
+                  return (
+                    <li key={i} className="flex items-center gap-3 text-gray-400 text-sm">
+                      <span>{icon}</span>
+                      <span>{text || icon}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </section>
