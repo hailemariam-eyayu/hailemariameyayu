@@ -79,6 +79,23 @@ npm run build
 
 The production build will be generated in the frontend/dist folder.
 
+## Deploy on Vercel
+
+### Frontend deployment
+
+1. Push the project to GitHub.
+2. Open Vercel and create a new project.
+3. Import your repository.
+4. Set the project root to the frontend folder.
+5. Use these build settings:
+   - Build Command: npm run build
+   - Output Directory: dist
+6. Deploy the project.
+
+### Important note
+
+The frontend can be deployed easily on Vercel, but the backend is a separate Node.js/Express service. For a live website, deploy the backend on a platform such as Render or Railway, then update the frontend API URL to point to that deployed backend.
+
 ## Contact
 
 Feel free to reach out through the contact section on the portfolio site or via the repository discussion channels.
