@@ -8,20 +8,15 @@ const app = express();
 const PORT = process.env.PORT || 3002;
 const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE || 'admin1234';
 
-const allowedCorsOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || '')
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+// const allowedCorsOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || '')
+//   .split(',')
+//   .map((origin) => origin.trim())
+//   .filter(Boolean);
 
 // Temporarily allow all origins until the deployment is stable.
 // Restore origin restrictions in production by using CORS_ORIGIN or CORS_ORIGINS.
-const corsOptions = {
-  origin: true,
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.use(cors());
+app.options('*', cors());
 app.use(express.json());
 
 // ── Passcode middleware ───────────────────────────────────────────────────────
