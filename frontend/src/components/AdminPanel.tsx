@@ -5,7 +5,10 @@ import {
   updateProject, deleteProject, fetchStats, updateStats,
   fetchInquiries, fetchTechnologies, addTechnology,
   updateTechnology, deleteTechnology,
+  fetchSkills, addSkillCategory, updateSkillCategory, deleteSkillCategory,
+  addSkill, updateSkill, deleteSkill,
 } from '../api';
+import type { SkillCategory } from '../api';
 import { useProfileContext } from '../context/ProfileContext';
 
 // ── Passcode gate ─────────────────────────────────────────────────────────────
@@ -493,6 +496,209 @@ function InquiriesTab({ passcode }: { passcode: string }) {
   );
 }
 
+// ── Tab: Skills ───────────────────────────────────────────────────────────────
+
+function SkillsTab({ passcode }: { passcode: string }) {
+  const [categories, setCategories] = useState<SkillCategory[]>([]);
+  const [expandedCat, setExpandedCat] = useState<number | null>(null);
+  const [msg, setMsg] = useState('');
+  // new category form
+  const [newCatTitle, setNewCatTitle] = useState('');
+  const [newCatIcon, setNewCatIcon] = useState('🛠️');
+  // new skill form per category
+  const [newSkillName, setNewSkillName] = useState<Record<number, string>>({});
+  const [newSkillLevel, setNewSkillLevel] = useState<Record<number, string>>({});
+  // inline editing
+  const [editingSkill, setEditingSkill] = useState<{ id: number; name: string; level: string } | null>(null);
+  const [editingCat, setEditingCat] = useState<{ id: number; title: string; icon: string } | null>(null);
+
+  useEffect(() => {
+    fetchSkills().then(setCategories).catch(() => {});
+  }, []);
+
+  const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(''), 3000); };
+
+  // ── Category actions ──────────────────────────────────────────────────────
+  const handleAddCat = async () => {
+    if (!newCatTitle.trim()) return;
+    try {
+      const created = await addSkillCategory({ title: newCatTitle.trim(), icon: newCatIcon }, passcode);
+      setCategories((prev) => [...prev, created]);
+      setNewCatTitle(''); setNewCatIcon('🛠️');
+      flash('✅ Category added!');
+    } catch (e) { flash('❌ ' + (e instanceof Error ? e.message : 'Error')); }
+  };
+
+  const handleUpdateCat = async () => {
+    if (!editingCat) return;
+    try {
+      await updateSkillCategory(editingCat.id, { title: editingCat.title, icon: editingCat.icon }, passcode);
+      setCategories((prev) => prev.map((c) => c.id === editingCat.id ? { ...c, ...editingCat } : c));
+      setEditingCat(null); flash('✅ Updated!');
+    } catch (e) { flash('❌ ' + (e instanceof Error ? e.message : 'Error')); }
+  };
+
+  const handleDeleteCat = async (id: number) => {
+    if (!confirm('Delete this category and all its skills?')) return;
+    try {
+      await deleteSkillCategory(id, passcode);
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+      if (expandedCat === id) setExpandedCat(null);
+      flash('✅ Deleted!');
+    } catch (e) { flash('❌ ' + (e instanceof Error ? e.message : 'Error')); }
+  };
+
+  // ── Skill actions ─────────────────────────────────────────────────────────
+  const handleAddSkill = async (catId: number) => {
+    const name = newSkillName[catId]?.trim();
+    const level = parseInt(newSkillLevel[catId] || '50');
+    if (!name) return;
+    try {
+      const created = await addSkill(catId, { name, level }, passcode);
+      setCategories((prev) => prev.map((c) => c.id === catId
+        ? { ...c, skills: [...c.skills, created] } : c));
+      setNewSkillName((p) => ({ ...p, [catId]: '' }));
+      setNewSkillLevel((p) => ({ ...p, [catId]: '50' }));
+      flash('✅ Skill added!');
+    } catch (e) { flash('❌ ' + (e instanceof Error ? e.message : 'Error')); }
+  };
+
+  const handleUpdateSkill = async () => {
+    if (!editingSkill) return;
+    try {
+      const updated = await updateSkill(editingSkill.id, { name: editingSkill.name, level: parseInt(editingSkill.level) }, passcode);
+      setCategories((prev) => prev.map((c) => ({
+        ...c, skills: c.skills.map((s) => s.id === updated.id ? updated : s),
+      })));
+      setEditingSkill(null); flash('✅ Updated!');
+    } catch (e) { flash('❌ ' + (e instanceof Error ? e.message : 'Error')); }
+  };
+
+  const handleDeleteSkill = async (skillId: number, catId: number) => {
+    if (!confirm('Delete this skill?')) return;
+    try {
+      await deleteSkill(skillId, passcode);
+      setCategories((prev) => prev.map((c) => c.id === catId
+        ? { ...c, skills: c.skills.filter((s) => s.id !== skillId) } : c));
+      flash('✅ Deleted!');
+    } catch (e) { flash('❌ ' + (e instanceof Error ? e.message : 'Error')); }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Add category */}
+      <div className="flex gap-2">
+        <input value={newCatIcon} onChange={(e) => setNewCatIcon(e.target.value)}
+          className="input-field w-14 text-center text-lg" placeholder="🛠️" />
+        <input value={newCatTitle} onChange={(e) => setNewCatTitle(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleAddCat()}
+          placeholder="New category name..." className="input-field flex-1 text-sm" />
+        <button onClick={handleAddCat} className="btn-primary px-4 text-sm whitespace-nowrap">+ Category</button>
+      </div>
+
+      {msg && <p className={`text-sm ${msg.startsWith('✅') ? 'text-green-400' : 'text-red-400'}`}>{msg}</p>}
+
+      {/* Category list */}
+      <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+        {categories.map((cat) => (
+          <div key={cat.id} className="border border-white/10 rounded-xl overflow-hidden">
+            {/* Category header */}
+            {editingCat?.id === cat.id ? (
+              <div className="flex gap-2 p-3 bg-dark-600/60">
+                <input value={editingCat.icon} onChange={(e) => setEditingCat({ ...editingCat, icon: e.target.value })}
+                  className="input-field w-14 text-center text-lg" />
+                <input autoFocus value={editingCat.title} onChange={(e) => setEditingCat({ ...editingCat, title: e.target.value })}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleUpdateCat(); if (e.key === 'Escape') setEditingCat(null); }}
+                  className="input-field flex-1 text-sm" />
+                <button onClick={handleUpdateCat} className="text-green-400 text-xs font-semibold px-2">Save</button>
+                <button onClick={() => setEditingCat(null)} className="text-gray-500 text-xs px-1">✕</button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 px-3 py-2.5 bg-dark-600/40 cursor-pointer group"
+                onClick={() => setExpandedCat(expandedCat === cat.id ? null : cat.id)}>
+                <span className="text-lg">{cat.icon}</span>
+                <span className="flex-1 text-white text-sm font-semibold">{cat.title}</span>
+                <span className="text-xs text-gray-500">{cat.skills.length} skills</span>
+                <button onClick={(e) => { e.stopPropagation(); setEditingCat({ id: cat.id, title: cat.title, icon: cat.icon }); }}
+                  className="opacity-0 group-hover:opacity-100 text-blue-400 hover:text-blue-300 p-1 transition-all" aria-label="Edit">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); handleDeleteCat(cat.id); }}
+                  className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 p-1 transition-all" aria-label="Delete">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+                <span className="text-gray-600 text-xs">{expandedCat === cat.id ? '▲' : '▼'}</span>
+              </div>
+            )}
+
+            {/* Skills list */}
+            {expandedCat === cat.id && (
+              <div className="px-3 py-2 space-y-1.5 bg-dark-700/30">
+                {cat.skills.map((skill) => (
+                  <div key={skill.id} className="group flex items-center gap-2 py-1">
+                    {editingSkill?.id === skill.id ? (
+                      <>
+                        <input autoFocus value={editingSkill.name}
+                          onChange={(e) => setEditingSkill({ ...editingSkill, name: e.target.value })}
+                          className="input-field flex-1 text-xs py-1" />
+                        <input type="number" min={0} max={100} value={editingSkill.level}
+                          onChange={(e) => setEditingSkill({ ...editingSkill, level: e.target.value })}
+                          className="input-field w-16 text-xs py-1 text-center" />
+                        <span className="text-gray-500 text-xs">%</span>
+                        <button onClick={handleUpdateSkill} className="text-green-400 text-xs font-semibold">Save</button>
+                        <button onClick={() => setEditingSkill(null)} className="text-gray-500 text-xs">✕</button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="flex-1 text-sm text-gray-300">{skill.name}</span>
+                        <span className="text-xs text-primary-400 font-mono w-8 text-right">{skill.level}%</span>
+                        <div className="w-20 h-1.5 bg-dark-500 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-primary-600 to-blue-400 rounded-full"
+                            style={{ width: `${skill.level}%` }} />
+                        </div>
+                        <button onClick={() => setEditingSkill({ id: skill.id, name: skill.name, level: String(skill.level) })}
+                          className="opacity-0 group-hover:opacity-100 text-blue-400 p-1 transition-all">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button onClick={() => handleDeleteSkill(skill.id, cat.id)}
+                          className="opacity-0 group-hover:opacity-100 text-red-400 p-1 transition-all">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ))}
+
+                {/* Add skill row */}
+                <div className="flex items-center gap-2 pt-1 border-t border-white/5">
+                  <input value={newSkillName[cat.id] || ''} placeholder="Skill name"
+                    onChange={(e) => setNewSkillName((p) => ({ ...p, [cat.id]: e.target.value }))}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddSkill(cat.id)}
+                    className="input-field flex-1 text-xs py-1" />
+                  <input type="number" min={0} max={100} value={newSkillLevel[cat.id] || '50'}
+                    onChange={(e) => setNewSkillLevel((p) => ({ ...p, [cat.id]: e.target.value }))}
+                    className="input-field w-16 text-xs py-1 text-center" />
+                  <span className="text-gray-500 text-xs">%</span>
+                  <button onClick={() => handleAddSkill(cat.id)}
+                    className="text-primary-400 hover:text-primary-300 text-xs font-semibold whitespace-nowrap">+ Add</button>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Tab: Technologies ─────────────────────────────────────────────────────────
 
 function TechnologiesTab({ passcode }: { passcode: string }) {
@@ -630,6 +836,7 @@ const TABS = [
   { id: 'profile',      label: '👤 About & Contact' },
   { id: 'stats',        label: '📊 Stats' },
   { id: 'projects',     label: '🚀 Projects' },
+  { id: 'skills',       label: '📈 Skills' },
   { id: 'technologies', label: '🛠️ Technologies' },
   { id: 'inquiries',    label: '📬 Inquiries' },
 ];
@@ -699,6 +906,7 @@ export default function AdminPanel({ onClose }: { onClose: () => void }) {
           {activeTab === 'profile'      && <ProfileTab      passcode={passcode} initialProfile={profile} />}
           {activeTab === 'stats'        && <StatsTab        passcode={passcode} />}
           {activeTab === 'projects'     && <ProjectsTab     passcode={passcode} />}
+          {activeTab === 'skills'       && <SkillsTab       passcode={passcode} />}
           {activeTab === 'technologies' && <TechnologiesTab passcode={passcode} />}
           {activeTab === 'inquiries'    && <InquiriesTab    passcode={passcode} />}
         </div>

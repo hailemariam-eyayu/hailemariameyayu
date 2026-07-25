@@ -171,6 +171,53 @@ async function initDb() {
       console.log('Seeded settings table.');
     }
 
+    // ── Skill categories + skills tables ─────────────────────────────────────
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS skill_categories (
+        id       SERIAL PRIMARY KEY,
+        title    TEXT    NOT NULL,
+        icon     TEXT    NOT NULL DEFAULT '🛠️',
+        sort_order INTEGER NOT NULL DEFAULT 0
+      )
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS skills (
+        id          SERIAL PRIMARY KEY,
+        category_id INTEGER NOT NULL REFERENCES skill_categories(id) ON DELETE CASCADE,
+        name        TEXT    NOT NULL,
+        level       INTEGER NOT NULL DEFAULT 50 CHECK(level >= 0 AND level <= 100)
+      )
+    `);
+
+    // Seed skill categories if empty
+    const skillCatCount = await client.query('SELECT COUNT(*) FROM skill_categories');
+    if (parseInt(skillCatCount.rows[0].count) === 0) {
+      const cats = [
+        { title: 'Backend & APIs',     icon: '⚙️', sort_order: 0,
+          skills: [['Express.js',92],['Laravel / PHP',85],['Node.js',72],['REST APIs',75]] },
+        { title: 'Databases',          icon: '🗄️', sort_order: 1,
+          skills: [['PostgreSQL',84],['MySQL',75],['MongoDB',65],['SQLite',70]] },
+        { title: 'Frontend Web',       icon: '🌐', sort_order: 2,
+          skills: [['React',76],['Next.js',70],['Tailwind CSS',78],['TypeScript',65]] },
+        { title: 'Mobile Development', icon: '📱', sort_order: 3,
+          skills: [['Flutter',74],['Dart',72],['React Native',30],['Expo',25]] },
+      ];
+      for (const cat of cats) {
+        const res = await client.query(
+          'INSERT INTO skill_categories (title, icon, sort_order) VALUES ($1,$2,$3) RETURNING id',
+          [cat.title, cat.icon, cat.sort_order]
+        );
+        const catId = res.rows[0].id;
+        for (const [name, level] of cat.skills) {
+          await client.query(
+            'INSERT INTO skills (category_id, name, level) VALUES ($1,$2,$3)',
+            [catId, name, level]
+          );
+        }
+      }
+      console.log('Seeded skill_categories and skills tables.');
+    }
+
     // ── Technologies table ────────────────────────────────────────────────────
     await client.query(`
       CREATE TABLE IF NOT EXISTS technologies (

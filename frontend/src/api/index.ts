@@ -90,6 +90,76 @@ export async function updateStats(data: Partial<Stats>, passcode: string): Promi
   return res.json();
 }
 
+// ── Skills ────────────────────────────────────────────────────────────────────
+
+export interface SkillCategory {
+  id: number;
+  title: string;
+  icon: string;
+  sort_order: number;
+  skills: { id: number; category_id: number; name: string; level: number }[];
+}
+
+export async function fetchSkills(): Promise<SkillCategory[]> {
+  const res = await fetch(`${BASE_URL}/api/skills`);
+  if (!res.ok) throw new Error('Failed to fetch skills');
+  return res.json();
+}
+
+export async function addSkillCategory(data: { title: string; icon: string }, passcode: string) {
+  const res = await fetch(`${BASE_URL}/api/skill-categories`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error((e as any).error || 'Failed'); }
+  return res.json();
+}
+
+export async function updateSkillCategory(id: number, data: { title: string; icon: string }, passcode: string) {
+  const res = await fetch(`${BASE_URL}/api/skill-categories/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error((e as any).error || 'Failed'); }
+  return res.json();
+}
+
+export async function deleteSkillCategory(id: number, passcode: string) {
+  const res = await fetch(`${BASE_URL}/api/skill-categories/${id}`, {
+    method: 'DELETE', headers: { 'x-admin-passcode': passcode },
+  });
+  if (!res.ok) throw new Error('Failed to delete category');
+}
+
+export async function addSkill(catId: number, data: { name: string; level: number }, passcode: string) {
+  const res = await fetch(`${BASE_URL}/api/skill-categories/${catId}/skills`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error((e as any).error || 'Failed'); }
+  return res.json();
+}
+
+export async function updateSkill(id: number, data: { name: string; level: number }, passcode: string) {
+  const res = await fetch(`${BASE_URL}/api/skills/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error((e as any).error || 'Failed'); }
+  return res.json();
+}
+
+export async function deleteSkill(id: number, passcode: string) {
+  const res = await fetch(`${BASE_URL}/api/skills/${id}`, {
+    method: 'DELETE', headers: { 'x-admin-passcode': passcode },
+  });
+  if (!res.ok) throw new Error('Failed to delete skill');
+}
+
 // ── Technologies ─────────────────────────────────────────────────────────────
 
 export async function fetchTechnologies(): Promise<{ id: number; name: string }[]> {

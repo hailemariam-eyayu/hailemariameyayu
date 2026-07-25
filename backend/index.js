@@ -95,6 +95,85 @@ app.put('/api/profile', requirePasscode, async (req, res) => {
   }
 });
 
+// ── Skills (public) ───────────────────────────────────────────────────────────
+app.get('/api/skills', async (req, res) => {
+  try {
+    const cats = await pool.query('SELECT * FROM skill_categories ORDER BY sort_order ASC, id ASC');
+    const skills = await pool.query('SELECT * FROM skills ORDER BY id ASC');
+    const result = cats.rows.map(cat => ({
+      ...cat,
+      skills: skills.rows.filter(s => s.category_id === cat.id),
+    }));
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch skills' });
+  }
+});
+
+// ── Skill categories (admin) ──────────────────────────────────────────────────
+app.post('/api/skill-categories', requirePasscode, async (req, res) => {
+  try {
+    const { title, icon } = req.body;
+    if (!title?.trim()) return res.status(400).json({ error: 'Title required' });
+    const result = await pool.query(
+      'INSERT INTO skill_categories (title, icon, sort_order) VALUES ($1,$2,(SELECT COALESCE(MAX(sort_order)+1,0) FROM skill_categories)) RETURNING *',
+      [title.trim(), icon?.trim() || '🛠️']
+    );
+    res.status(201).json({ ...result.rows[0], skills: [] });
+  } catch (err) { res.status(500).json({ error: 'Failed to add category' }); }
+});
+
+app.put('/api/skill-categories/:id', requirePasscode, async (req, res) => {
+  try {
+    const { title, icon } = req.body;
+    const result = await pool.query(
+      'UPDATE skill_categories SET title=$1, icon=$2 WHERE id=$3 RETURNING *',
+      [title?.trim(), icon?.trim() || '🛠️', req.params.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: 'Failed to update category' }); }
+});
+
+app.delete('/api/skill-categories/:id', requirePasscode, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM skill_categories WHERE id=$1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Failed to delete category' }); }
+});
+
+// ── Skills within category (admin) ───────────────────────────────────────────
+app.post('/api/skill-categories/:catId/skills', requirePasscode, async (req, res) => {
+  try {
+    const { name, level } = req.body;
+    if (!name?.trim()) return res.status(400).json({ error: 'Name required' });
+    const result = await pool.query(
+      'INSERT INTO skills (category_id, name, level) VALUES ($1,$2,$3) RETURNING *',
+      [req.params.catId, name.trim(), parseInt(level) || 50]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: 'Failed to add skill' }); }
+});
+
+app.put('/api/skills/:id', requirePasscode, async (req, res) => {
+  try {
+    const { name, level } = req.body;
+    const result = await pool.query(
+      'UPDATE skills SET name=$1, level=$2 WHERE id=$3 RETURNING *',
+      [name?.trim(), parseInt(level) || 50, req.params.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: 'Failed to update skill' }); }
+});
+
+app.delete('/api/skills/:id', requirePasscode, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM skills WHERE id=$1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Failed to delete skill' }); }
+});
+
 // ── Technologies (public) ─────────────────────────────────────────────────────
 app.get('/api/technologies', async (req, res) => {
   try {
