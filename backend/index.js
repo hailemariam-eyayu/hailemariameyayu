@@ -1,5 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 require('dotenv').config();
 
 const { pool, initDb } = require('./db');
@@ -7,6 +10,23 @@ const { pool, initDb } = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3002;
 const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE || 'admin1234';
+
+// ── Cloudinary config ─────────────────────────────────────────────────────────
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'portfolio',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+    transformation: [{ width: 800, height: 800, crop: 'limit', quality: 'auto' }],
+  },
+});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 // const allowedCorsOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || '')
 //   .split(',')
@@ -34,6 +54,67 @@ function requirePasscode(req, res, next) {
 
 // ── Health ────────────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+
+// ── Image upload (Cloudinary) ─────────────────────────────────────────────────
+app.post('/api/upload', requirePasscode, upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    res.json({ url: req.file.path, public_id: req.file.filename });
+  } catch (err) {
+    console.error('Upload error:', err);
+    res.status(500).json({ error: 'Upload failed' });
+  }
+});
+
+// ── Social links (public) ─────────────────────────────────────────────────────
+app.get('/api/social-links', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM social_links ORDER BY sort_order ASC, id ASC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch social links' });
+  }
+});
+
+// ── Social links (admin add) ──────────────────────────────────────────────────
+app.post('/api/social-links', requirePasscode, async (req, res) => {
+  try {
+    const { name, icon, url } = req.body;
+    if (!name?.trim() || !url?.trim()) return res.status(400).json({ error: 'Name and URL required' });
+    const result = await pool.query(
+      'INSERT INTO social_links (name, icon, url, sort_order) VALUES ($1,$2,$3,(SELECT COALESCE(MAX(sort_order)+1,0) FROM social_links)) RETURNING *',
+      [name.trim(), icon?.trim() || '🔗', url.trim()]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add social link' });
+  }
+});
+
+// ── Social links (admin update) ───────────────────────────────────────────────
+app.put('/api/social-links/:id', requirePasscode, async (req, res) => {
+  try {
+    const { name, icon, url } = req.body;
+    const result = await pool.query(
+      'UPDATE social_links SET name=$1, icon=$2, url=$3 WHERE id=$4 RETURNING *',
+      [name?.trim(), icon?.trim() || '🔗', url?.trim(), req.params.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update social link' });
+  }
+});
+
+// ── Social links (admin delete) ───────────────────────────────────────────────
+app.delete('/api/social-links/:id', requirePasscode, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM social_links WHERE id=$1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete social link' });
+  }
+});
 
 // ── Admin: verify passcode ────────────────────────────────────────────────────
 app.post('/api/admin/login', (req, res) => {

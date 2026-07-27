@@ -7,8 +7,10 @@ import {
   updateTechnology, deleteTechnology,
   fetchSkills, addSkillCategory, updateSkillCategory, deleteSkillCategory,
   addSkill, updateSkill, deleteSkill,
+  fetchSocialLinks, addSocialLink, updateSocialLink, deleteSocialLink,
+  uploadImage,
 } from '../api';
-import type { SkillCategory } from '../api';
+import type { SkillCategory, SocialLink } from '../api';
 import { useProfileContext } from '../context/ProfileContext';
 
 // ── Passcode gate ─────────────────────────────────────────────────────────────
@@ -109,14 +111,17 @@ function ProfileTab({ passcode, initialProfile }: { passcode: string; initialPro
     setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setForm((p) => ({ ...p, image_url: reader.result as string }));
-    };
-    reader.readAsDataURL(file);
+    setMsg('⏳ Uploading image...');
+    try {
+      const url = await uploadImage(file, passcode);
+      setForm((p) => ({ ...p, image_url: url }));
+      setMsg('✅ Image uploaded!');
+    } catch (err) {
+      setMsg('❌ Upload failed: ' + (err instanceof Error ? err.message : 'Error'));
+    }
   };
 
   const handleQuickFacts = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -699,6 +704,116 @@ function SkillsTab({ passcode }: { passcode: string }) {
   );
 }
 
+// ── Tab: Social Links ─────────────────────────────────────────────────────────
+
+function SocialLinksTab({ passcode }: { passcode: string }) {
+  const [links, setLinks] = useState<SocialLink[]>([]);
+  const [form, setForm] = useState({ name: '', icon: '', url: '' });
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', icon: '', url: '' });
+  const [msg, setMsg] = useState('');
+
+  useEffect(() => { fetchSocialLinks().then(setLinks).catch(() => {}); }, []);
+
+  const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(''), 3000); };
+
+  const handleAdd = async () => {
+    if (!form.name.trim() || !form.url.trim()) { flash('❌ Name and URL required'); return; }
+    try {
+      const created = await addSocialLink(form, passcode);
+      setLinks((p) => [...p, created]);
+      setForm({ name: '', icon: '', url: '' });
+      flash('✅ Added!');
+    } catch (e) { flash('❌ ' + (e instanceof Error ? e.message : 'Error')); }
+  };
+
+  const handleUpdate = async (id: number) => {
+    if (!editForm.name.trim() || !editForm.url.trim()) return;
+    try {
+      const updated = await updateSocialLink(id, editForm, passcode);
+      setLinks((p) => p.map((l) => l.id === id ? updated : l));
+      setEditingId(null);
+      flash('✅ Updated!');
+    } catch (e) { flash('❌ ' + (e instanceof Error ? e.message : 'Error')); }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this link?')) return;
+    try {
+      await deleteSocialLink(id, passcode);
+      setLinks((p) => p.filter((l) => l.id !== id));
+      flash('✅ Deleted!');
+    } catch (e) { flash('❌ Error'); }
+  };
+
+  const iconHint = 'github · telegram · linkedin · twitter · youtube · instagram · or emoji';
+
+  return (
+    <div className="space-y-4">
+      {/* Add form */}
+      <div className="space-y-2 p-4 border border-white/10 rounded-xl bg-dark-600/30">
+        <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Add New Link</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+            placeholder="Name (e.g. LinkedIn)" className="input-field text-sm" />
+          <input value={form.icon} onChange={(e) => setForm((p) => ({ ...p, icon: e.target.value }))}
+            placeholder="Icon (e.g. linkedin)" className="input-field text-sm" />
+          <input value={form.url} onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))}
+            placeholder="https://..." className="input-field text-sm" type="url" />
+        </div>
+        <p className="text-xs text-gray-600">Icon names: {iconHint}</p>
+        <button onClick={handleAdd} className="btn-primary text-sm px-4 py-2">+ Add Link</button>
+      </div>
+
+      {msg && <p className={`text-sm ${msg.startsWith('✅') ? 'text-green-400' : msg.startsWith('⏳') ? 'text-yellow-400' : 'text-red-400'}`}>{msg}</p>}
+
+      {/* Links list */}
+      <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
+        {links.map((link) => (
+          <div key={link.id} className="border border-white/5 bg-dark-600/40 rounded-xl px-3 py-2 group">
+            {editingId === link.id ? (
+              <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <input autoFocus value={editForm.name} onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))}
+                    placeholder="Name" className="input-field text-sm" />
+                  <input value={editForm.icon} onChange={(e) => setEditForm((p) => ({ ...p, icon: e.target.value }))}
+                    placeholder="Icon" className="input-field text-sm" />
+                  <input value={editForm.url} onChange={(e) => setEditForm((p) => ({ ...p, url: e.target.value }))}
+                    placeholder="URL" className="input-field text-sm" type="url" />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => handleUpdate(link.id)} className="text-green-400 text-xs font-semibold px-3 py-1 border border-green-500/30 rounded-lg">Save</button>
+                  <button onClick={() => setEditingId(null)} className="text-gray-500 text-xs px-2">Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <span className="text-lg w-7 text-center">{link.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-sm font-medium">{link.name}</p>
+                  <p className="text-gray-500 text-xs truncate">{link.url}</p>
+                </div>
+                <button onClick={() => { setEditingId(link.id); setEditForm({ name: link.name, icon: link.icon, url: link.url }); }}
+                  className="opacity-0 group-hover:opacity-100 text-blue-400 p-1 transition-all">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button onClick={() => handleDelete(link.id)}
+                  className="opacity-0 group-hover:opacity-100 text-red-400 p-1 transition-all">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Tab: Technologies ─────────────────────────────────────────────────────────
 
 function TechnologiesTab({ passcode }: { passcode: string }) {
@@ -838,6 +953,7 @@ const TABS = [
   { id: 'projects',     label: '🚀 Projects' },
   { id: 'skills',       label: '📈 Skills' },
   { id: 'technologies', label: '🛠️ Technologies' },
+  { id: 'social',       label: '🔗 Social Links' },
   { id: 'inquiries',    label: '📬 Inquiries' },
 ];
 
@@ -908,6 +1024,7 @@ export default function AdminPanel({ onClose }: { onClose: () => void }) {
           {activeTab === 'projects'     && <ProjectsTab     passcode={passcode} />}
           {activeTab === 'skills'       && <SkillsTab       passcode={passcode} />}
           {activeTab === 'technologies' && <TechnologiesTab passcode={passcode} />}
+          {activeTab === 'social'       && <SocialLinksTab  passcode={passcode} />}
           {activeTab === 'inquiries'    && <InquiriesTab    passcode={passcode} />}
         </div>
       </div>

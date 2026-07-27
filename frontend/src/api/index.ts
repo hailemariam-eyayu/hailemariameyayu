@@ -2,6 +2,64 @@ import type { Project, Stats, Inquiry, Profile } from '../types';
 
 export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
+// ── Social links ──────────────────────────────────────────────────────────────
+
+export interface SocialLink {
+  id: number;
+  name: string;
+  icon: string;  // fa brand name e.g. "github", "linkedin", or emoji
+  url: string;
+  sort_order: number;
+}
+
+export async function fetchSocialLinks(): Promise<SocialLink[]> {
+  const res = await fetch(`${BASE_URL}/api/social-links`);
+  if (!res.ok) throw new Error('Failed to fetch social links');
+  return res.json();
+}
+
+export async function addSocialLink(data: { name: string; icon: string; url: string }, passcode: string): Promise<SocialLink> {
+  const res = await fetch(`${BASE_URL}/api/social-links`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error((e as any).error || 'Failed'); }
+  return res.json();
+}
+
+export async function updateSocialLink(id: number, data: { name: string; icon: string; url: string }, passcode: string): Promise<SocialLink> {
+  const res = await fetch(`${BASE_URL}/api/social-links/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error((e as any).error || 'Failed'); }
+  return res.json();
+}
+
+export async function deleteSocialLink(id: number, passcode: string): Promise<void> {
+  const res = await fetch(`${BASE_URL}/api/social-links/${id}`, {
+    method: 'DELETE', headers: { 'x-admin-passcode': passcode },
+  });
+  if (!res.ok) throw new Error('Failed to delete');
+}
+
+// ── Image upload (Cloudinary) ─────────────────────────────────────────────────
+
+export async function uploadImage(file: File, passcode: string): Promise<string> {
+  const formData = new FormData();
+  formData.append('image', file);
+  const res = await fetch(`${BASE_URL}/api/upload`, {
+    method: 'POST',
+    headers: { 'x-admin-passcode': passcode },
+    body: formData,
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error((e as any).error || 'Upload failed'); }
+  const data = await res.json();
+  return data.url;
+}
+
 // ── Profile ───────────────────────────────────────────────────────────────────
 
 export async function fetchProfile(): Promise<Profile> {

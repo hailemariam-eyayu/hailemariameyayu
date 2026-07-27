@@ -1,15 +1,19 @@
+import { useEffect, useState } from 'react';
 import { useProfileContext } from '../context/ProfileContext';
+import { fetchSocialLinks } from '../api';
+import type { SocialLink } from '../api';
 
 export default function Footer({ onOpenAdmin }: { onOpenAdmin: () => void }) {
   const { profile } = useProfileContext();
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const year = new Date().getFullYear();
 
+  useEffect(() => {
+    fetchSocialLinks().then(setSocialLinks).catch(() => {});
+  }, []);
+
   const initials = profile.full_name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+    .split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
 
   return (
     <footer className="border-t border-white/5 py-10 bg-dark-800/50">
@@ -29,31 +33,23 @@ export default function Footer({ onOpenAdmin }: { onOpenAdmin: () => void }) {
           <span>using React + Tailwind CSS</span>
         </div>
 
-        <div className="flex gap-4">
-          {profile.github && (
-            <a href={profile.github} target="_blank" rel="noopener noreferrer"
+        <div className="flex gap-4 items-center">
+          {socialLinks.map((link) => (
+            <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer"
               className="text-gray-500 hover:text-white transition-colors text-sm">
-              GitHub
+              {link.name}
             </a>
-          )}
-          {profile.telegram && (
-            <a href={profile.telegram} target="_blank" rel="noopener noreferrer"
-              className="text-gray-500 hover:text-white transition-colors text-sm">
-              Telegram
-            </a>
-          )}
+          ))}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="text-gray-500 hover:text-white transition-colors text-sm"
           >
             Back to top ↑
           </button>
-          {/* Hidden admin trigger — small dot in footer */}
           <button
             onClick={onOpenAdmin}
             className="text-dark-800 hover:text-gray-700 transition-colors text-sm select-none"
-            aria-label="Admin"
-            title="Admin"
+            aria-label="Admin" title="Admin"
           >
             ·
           </button>

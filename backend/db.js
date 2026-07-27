@@ -171,6 +171,28 @@ async function initDb() {
       console.log('Seeded settings table.');
     }
 
+    // ── Social links table ────────────────────────────────────────────────────
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS social_links (
+        id         SERIAL PRIMARY KEY,
+        name       TEXT NOT NULL,
+        icon       TEXT NOT NULL DEFAULT '🔗',
+        url        TEXT NOT NULL,
+        sort_order INTEGER NOT NULL DEFAULT 0
+      )
+    `);
+
+    const socialCount = await client.query('SELECT COUNT(*) FROM social_links');
+    if (parseInt(socialCount.rows[0].count) === 0) {
+      await client.query(`
+        INSERT INTO social_links (name, icon, url, sort_order) VALUES
+        ('GitHub',   'github',   'https://github.com/hailemariam-eyayu', 0),
+        ('Telegram', 'telegram', 'https://t.me/hailemariam_eyayu',       1),
+        ('LinkedIn', 'linkedin', 'https://linkedin.com/in/hailemariam-eyayu', 2)
+      `);
+      console.log('Seeded social_links table.');
+    }
+
     // ── Skill categories + skills tables ─────────────────────────────────────
     await client.query(`
       CREATE TABLE IF NOT EXISTS skill_categories (
