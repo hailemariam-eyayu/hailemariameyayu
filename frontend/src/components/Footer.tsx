@@ -19,9 +19,14 @@ export default function Footer({ onOpenAdmin }: { onOpenAdmin: () => void }) {
     <footer className="border-t border-white/5 py-10 bg-dark-800/50">
       <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center font-bold text-white text-xs">
+          <button
+            onClick={onOpenAdmin}
+            className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center font-bold text-white text-xs hover:bg-primary-500 transition-colors hover:shadow-lg hover:shadow-primary-500/30 hover:scale-110 active:scale-95"
+            title="Admin Panel"
+            aria-label="Open admin panel"
+          >
             {initials}
-          </div>
+          </button>
           <span className="text-gray-400 text-sm">
             © {year} <span className="text-white font-medium">{profile.full_name}</span>. All rights reserved.
           </span>
@@ -45,13 +50,6 @@ export default function Footer({ onOpenAdmin }: { onOpenAdmin: () => void }) {
             className="text-gray-500 hover:text-white transition-colors text-sm"
           >
             Back to top ↑
-          </button>
-          <button
-            onClick={onOpenAdmin}
-            className="text-dark-800 hover:text-gray-700 transition-colors text-sm select-none"
-            aria-label="Admin" title="Admin"
-          >
-            ·
           </button>
         </div>
       </div>
