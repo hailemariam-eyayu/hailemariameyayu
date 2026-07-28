@@ -3,6 +3,7 @@ const cors = require('cors');
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const { pool, initDb } = require('./db');
@@ -10,6 +11,109 @@ const { pool, initDb } = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3002;
 const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE || 'admin1234';
+
+// ── Email transporter ─────────────────────────────────────────────────────────
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
+
+async function sendInquiryNotification({ name, email, message }) {
+  if (!process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD === 'your_app_password_here') {
+    console.log('[email] GMAIL_APP_PASSWORD not set — skipping email notification');
+    return;
+  }
+  const to = [
+    process.env.NOTIFY_EMAIL,
+    process.env.NOTIFY_EMAIL_ALT,
+  ].filter(Boolean).join(',');
+
+  const now = new Date().toLocaleString('en-US', {
+    weekday:'long', year:'numeric', month:'long', day:'numeric',
+    hour:'2-digit', minute:'2-digit', timeZoneName:'short',
+  });
+
+  try {
+    await transporter.sendMail({
+      from: `"Portfolio Contact" <${process.env.GMAIL_USER}>`,
+      to,
+      replyTo: email,
+      subject: `📬 New message from ${name} — Portfolio Contact`,
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>New Inquiry</title></head>
+<body style="margin:0;padding:0;background:#0f172a;font-family:'Segoe UI',system-ui,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f172a;padding:40px 16px">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#1e293b;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)">
+
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg,#4f46e5 0%,#3b82f6 100%);padding:32px 40px">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td>
+                <div style="width:44px;height:44px;background:rgba(255,255,255,0.15);border-radius:12px;display:inline-block;text-align:center;line-height:44px;font-size:20px;vertical-align:middle;margin-right:12px">📬</div>
+                <span style="color:#fff;font-size:22px;font-weight:700;vertical-align:middle">New Portfolio Inquiry</span>
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:32px 40px">
+
+          <!-- Sender info chips -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
+            <tr>
+              <td style="padding:12px 16px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);border-radius:10px;width:48%">
+                <div style="color:#a5b4fc;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">From</div>
+                <div style="color:#f1f5f9;font-size:15px;font-weight:600">${name}</div>
+              </td>
+              <td style="width:4%"></td>
+              <td style="padding:12px 16px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);border-radius:10px;width:48%">
+                <div style="color:#a5b4fc;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Email</div>
+                <div style="color:#60a5fa;font-size:14px;font-weight:500">${email}</div>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Message -->
+          <div style="color:#94a3b8;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Message</div>
+          <div style="background:#0f172a;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px 24px;color:#e2e8f0;font-size:15px;line-height:1.75;white-space:pre-wrap">${message}</div>
+
+          <!-- CTA button -->
+          <div style="margin-top:28px;text-align:center">
+            <a href="mailto:${email}?subject=Re: Your Portfolio Inquiry"
+               style="display:inline-block;padding:13px 32px;background:linear-gradient(135deg,#4f46e5,#3b82f6);color:#fff;text-decoration:none;border-radius:10px;font-size:15px;font-weight:600;letter-spacing:0.02em">
+              Reply to ${name} →
+            </a>
+          </div>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:20px 40px;border-top:1px solid rgba(255,255,255,0.06);background:rgba(0,0,0,0.2)">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="color:#475569;font-size:12px">${now}</td>
+              <td align="right" style="color:#475569;font-size:12px">hailemariam-eyayu.dev</td>
+            </tr>
+          </table>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+    });
+    console.log(`[email] Notification sent to ${to} for inquiry from ${name}`);
+  } catch (err) {
+    console.error('[email] Failed to send notification:', err.message);
+  }
+}
 
 // ── Cloudinary config ─────────────────────────────────────────────────────────
 cloudinary.config({
@@ -416,6 +520,8 @@ app.post('/api/inquiries', async (req, res) => {
       'INSERT INTO inquiries (name, email, message) VALUES ($1, $2, $3) RETURNING *',
       [name, email, message]
     );
+    // Send email notification (non-blocking)
+    sendInquiryNotification({ name, email, message });
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Error creating inquiry:', err);
