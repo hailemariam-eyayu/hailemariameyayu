@@ -48,7 +48,7 @@ export default function Skills() {
   }, []);
 
   return (
-    <section id="skills" className="py-24 bg-dark-800/30">
+    <section id="skills" className="py-24 transition-colors duration-300" style={{ background: 'var(--surface)' }}>
       <div className="max-w-6xl mx-auto px-6">
         <div ref={titleRef} className="reveal text-center mb-16">
           <p className="section-subtitle">// what i work with</p>

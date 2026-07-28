@@ -29,8 +29,8 @@ export default function Footer({ onOpenAdmin }: { onOpenAdmin: () => void }) {
 
         <div className="flex items-center gap-2 text-gray-600 text-sm">
           <span>Built with</span>
-          <span className="text-red-400">♥</span>
-          <span>using React + Tailwind CSS</span>
+          <span className="text-red-400">PostgresSQL</span>
+          <span> React + Tailwind CSS</span>
         </div>
 
         <div className="flex gap-4 items-center">

@@ -88,7 +88,7 @@ export default function Contact() {
         <p className="section-subtitle">// let's talk</p>
         <h2 className="section-title">Get In Touch</h2>
         <div className="w-16 h-1 bg-gradient-to-r from-primary-500 to-blue-400 rounded-full mx-auto mt-4" />
-        <p className="text-gray-400 mt-4 max-w-lg mx-auto">
+        <p style={{ color: 'var(--text-muted)' }} className="mt-4 max-w-lg mx-auto">
           Have a project in mind or want to collaborate? I'd love to hear from you.
         </p>
       </div>
@@ -103,18 +103,15 @@ export default function Contact() {
                   {card.icon}
                 </div>
                 <div>
-                  <p className="text-gray-500 text-sm">{card.label}</p>
+                  <p style={{ color: 'var(--text-subtle)' }} className="text-sm">{card.label}</p>
                   {card.href ? (
-                    <a
-                      href={card.href}
-                      target={card.external ? '_blank' : undefined}
+                    <a href={card.href} target={card.external ? '_blank' : undefined}
                       rel={card.external ? 'noopener noreferrer' : undefined}
-                      className="text-primary-400 hover:text-primary-300 font-medium transition-colors"
-                    >
+                      className="font-medium transition-colors" style={{ color: 'var(--accent-light)' }}>
                       {card.text}
                     </a>
                   ) : (
-                    <p className="text-white font-medium">{card.text}</p>
+                    <p className="font-medium" style={{ color: 'var(--text)' }}>{card.text}</p>
                   )}
                 </div>
               </div>
@@ -126,7 +123,7 @@ export default function Contact() {
         <div ref={formRef} className="reveal">
           <form onSubmit={handleSubmit} noValidate className="card space-y-5">
             <div>
-              <label htmlFor="name" className="block text-sm text-gray-400 mb-2 font-medium">Your Name</label>
+              <label htmlFor="name" className="block text-sm mb-2 font-medium" style={{ color: 'var(--text-muted)' }}>Your Name</label>
               <input id="name" name="name" type="text" value={form.name} onChange={handleChange}
                 placeholder={profile.full_name}
                 className={`input-field ${errors.name ? 'border-red-500/60' : ''}`} />
@@ -134,7 +131,7 @@ export default function Contact() {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm text-gray-400 mb-2 font-medium">Email Address</label>
+              <label htmlFor="email" className="block text-sm mb-2 font-medium" style={{ color: 'var(--text-muted)' }}>Email Address</label>
               <input id="email" name="email" type="email" value={form.email} onChange={handleChange}
                 placeholder="you@example.com"
                 className={`input-field ${errors.email ? 'border-red-500/60' : ''}`} />
@@ -142,7 +139,7 @@ export default function Contact() {
             </div>
 
             <div>
-              <label htmlFor="message" className="block text-sm text-gray-400 mb-2 font-medium">Message</label>
+              <label htmlFor="message" className="block text-sm mb-2 font-medium" style={{ color: 'var(--text-muted)' }}>Message</label>
               <textarea id="message" name="message" rows={5} value={form.message} onChange={handleChange}
                 placeholder="Tell me about your project..."
                 className={`input-field resize-none ${errors.message ? 'border-red-500/60' : ''}`} />
