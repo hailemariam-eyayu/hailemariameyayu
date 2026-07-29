@@ -55,18 +55,18 @@ const STAT_ITEMS = [
 
 export default function StatsBar({ stats }: Props) {
   return (
-    <section className="py-12 border-y border-white/5 bg-dark-800/50">
+    <section className="py-12 border-y border-theme app-surface-alt">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {STAT_ITEMS.map((item) => {
             const value = stats ? parseInt(stats[item.key] || '0') : 0;
             return (
               <div key={item.key} className="text-center group">
-                <div className="text-2xl mb-2">{item.icon}</div>
-                <div className="text-3xl md:text-4xl font-black text-white mb-1">
+                <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">{item.icon}</div>
+                <div className="text-3xl md:text-4xl font-black text-theme mb-1">
                   <AnimatedNumber target={value} suffix={item.suffix} />
                 </div>
-                <div className="text-xs text-gray-500 font-medium uppercase tracking-wider">
+                <div className="text-xs text-subtle font-medium uppercase tracking-wider">
                   {item.label}
                 </div>
               </div>

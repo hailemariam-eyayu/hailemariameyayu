@@ -37,26 +37,23 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-glass bg-glass-dark ${
-        scrolled ? 'shadow-xl shadow-black/20 border-b' : ''
+        scrolled ? 'shadow-lg border-b border-theme' : ''
       }`}
-      style={{ borderColor: 'var(--border)' }}
     >
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
 
-        {/* Logo */}
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="flex items-center gap-2 group"
         >
-          <div className="w-9 h-9 rounded-lg bg-primary-600 flex items-center justify-center font-bold text-white text-sm group-hover:bg-primary-500 transition-colors">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-600 to-primary-500 flex items-center justify-center font-bold text-white text-sm group-hover:shadow-lg group-hover:shadow-primary-500/30 transition-all">
             HE
           </div>
-          <span className="font-bold text-lg hidden sm:block" style={{ color: 'var(--text)' }}>
-            Hailemariam<span style={{ color: 'var(--accent-light)' }}>.</span>
+          <span className="font-bold text-lg hidden sm:block text-theme">
+            Hailemariam<span className="text-gradient">.</span>
           </span>
         </button>
 
-        {/* Desktop nav */}
         <ul className="hidden md:flex items-center gap-8">
           {NAV_ITEMS.map((item) => (
             <li key={item.id}>
@@ -67,28 +64,27 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* CTA + theme toggle + mobile toggle */}
         <div className="flex items-center gap-3">
 
-          {/* Theme toggle */}
           <button
             onClick={toggleTheme}
-            className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
-            style={{ background: 'var(--card)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
+            className={`theme-toggle ${theme === 'light' ? 'light' : ''}`}
             aria-label="Toggle theme"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
-            {theme === 'dark' ? (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-              </svg>
-            ) : (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-              </svg>
-            )}
+            <span className="theme-toggle-knob">
+              {theme === 'dark' ? (
+                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              ) : (
+                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                </svg>
+              )}
+            </span>
           </button>
 
           <a
@@ -99,21 +95,18 @@ export default function Navbar() {
             View CV
           </a>
 
-          {/* Mobile hamburger */}
           <button className="md:hidden flex flex-col gap-1.5 p-2" onClick={() => setMenuOpen((v) => !v)} aria-label="Toggle menu">
-            <span className={`block w-5 h-0.5 transition-all duration-200 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} style={{ background: 'var(--text)' }} />
-            <span className={`block w-5 h-0.5 transition-all duration-200 ${menuOpen ? 'opacity-0' : ''}`}         style={{ background: 'var(--text)' }} />
-            <span className={`block w-5 h-0.5 transition-all duration-200 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} style={{ background: 'var(--text)' }} />
+            <span className={`block w-5 h-0.5 bg-current text-theme transition-all duration-200 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-current text-theme transition-all duration-200 ${menuOpen ? 'opacity-0' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-current text-theme transition-all duration-200 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
           </button>
         </div>
       </div>
 
-      {/* Mobile menu */}
       <div
-        className={`md:hidden bg-glass bg-glass-dark border-t overflow-hidden transition-all duration-300 ${
+        className={`md:hidden bg-glass bg-glass-dark border-t border-theme overflow-hidden transition-all duration-300 ${
           menuOpen ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'
         }`}
-        style={{ borderColor: 'var(--border)' }}
       >
         <ul className="px-6 py-4 flex flex-col gap-4">
           {NAV_ITEMS.map((item) => (

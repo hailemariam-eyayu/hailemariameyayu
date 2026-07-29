@@ -12,10 +12,6 @@ const ROLES = [
   'Laravel & PHP Engineer',
 ];
 
-// ── Social icon renderer ──────────────────────────────────────────────────────
-// icon can be a known name (github, telegram, linkedin, twitter, youtube, etc.)
-// or an emoji/text fallback
-
 const SOCIAL_SVGS: Record<string, ReactElement> = {
   github: (
     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -52,7 +48,6 @@ const SOCIAL_SVGS: Record<string, ReactElement> = {
 function SocialIcon({ icon }: { icon: string }) {
   const lower = icon.toLowerCase();
   if (SOCIAL_SVGS[lower]) return SOCIAL_SVGS[lower];
-  // emoji or text fallback
   return <span className="text-sm leading-none">{icon}</span>;
 }
 
@@ -63,6 +58,7 @@ export default function Hero() {
   useEffect(() => {
     fetchSocialLinks().then(setSocialLinks).catch(() => {});
   }, []);
+
   const [roleIndex, setRoleIndex] = useState(0);
   const [displayed, setDisplayed] = useState('');
   const [deleting, setDeleting] = useState(false);
@@ -87,28 +83,29 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-grid-pattern opacity-30" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-600/10 rounded-full blur-3xl animate-pulse-slow" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/8 rounded-full blur-3xl animate-pulse-slow animate-delay-300" />
+      <div className="hero-bg">
+        <div className="hero-grid bg-grid-pattern" />
+        <div className="hero-orb top-1/4 left-1/4 w-96 h-96 animate-pulse-slow" style={{ background: 'var(--hero-orb-1)' }} />
+        <div className="hero-orb bottom-1/4 right-1/4 w-80 h-80 animate-pulse-slow animate-delay-300" style={{ background: 'var(--hero-orb-2)' }} />
+      </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-24 flex flex-col lg:flex-row items-center gap-16">
-        {/* Text */}
         <div className="flex-1 text-center lg:text-left animate-slide-up">
-          <div className="inline-flex items-center gap-2 bg-dark-600 border border-white/10 rounded-full px-4 py-2 mb-8">
+          <div className="status-badge mb-8">
             <span className="glow-dot" />
-            <span className="text-sm text-gray-400">Available for work</span>
+            <span className="text-sm text-muted">Available for work</span>
           </div>
 
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight mb-4">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-theme leading-tight mb-4 tracking-tight">
             Hi, I'm{' '}
             <span className="text-gradient">{firstName}</span>
           </h1>
 
-          <div className="text-2xl md:text-3xl font-semibold text-gray-300 mb-6 h-10">
+          <div className="text-2xl md:text-3xl font-semibold text-muted mb-6 h-10">
             <span className="typing-cursor">{displayed}</span>
           </div>
 
-          <p className="text-gray-400 text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 mb-10">
+          <p className="text-muted text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 mb-10">
             {profile.tagline}
           </p>
 
@@ -133,21 +130,17 @@ export default function Hero() {
             </button>
           </div>
 
-          {/* Social links — from DB */}
           <div className="flex items-center gap-4 mt-10 justify-center lg:justify-start">
-            <span className="text-gray-600 text-sm">Find me on</span>
+            <span className="text-subtle text-sm">Find me on</span>
             <div className="flex gap-3 flex-wrap">
               {socialLinks.map((link) => (
                 <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-dark-600 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-primary-500/50 transition-all duration-200"
-                  aria-label={link.name} title={link.name}>
+                  className="social-btn" aria-label={link.name} title={link.name}>
                   <SocialIcon icon={link.icon} />
                 </a>
               ))}
               {profile.email && (
-                <a href={`mailto:${profile.email}`}
-                  className="w-9 h-9 rounded-lg bg-dark-600 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-primary-500/50 transition-all duration-200"
-                  aria-label="Email" title="Email">
+                <a href={`mailto:${profile.email}`} className="social-btn" aria-label="Email" title="Email">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
@@ -157,11 +150,12 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Avatar */}
         <div className="flex-shrink-0 animate-slide-up animate-delay-200">
           <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary-500 to-blue-400 blur-2xl opacity-30 scale-110 animate-pulse-slow" />
-            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-primary-500/30 shadow-2xl shadow-primary-500/20">
+            <div className="absolute inset-0 rounded-full blur-2xl opacity-40 scale-110 animate-pulse-slow"
+              style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-light))' }} />
+            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 shadow-2xl"
+              style={{ borderColor: 'var(--border-hover)', boxShadow: '0 20px 60px -12px var(--glow-strong)' }}>
               <img
                 src={profile.image_url || '/images/HME.png'}
                 alt={profile.full_name}
@@ -179,22 +173,22 @@ export default function Hero() {
               />
             </div>
 
-            <div className="absolute -top-4 -right-4 bg-dark-600 border border-white/10 rounded-xl px-3 py-2 shadow-xl animate-float">
+            <div className="absolute -top-4 -right-4 floating-badge animate-float">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">⚡</span>
                 <div>
-                  <div className="text-xs text-gray-400">Experience</div>
-                  <div className="text-sm font-bold text-white">5+ Years</div>
+                  <div className="text-xs text-subtle">Experience</div>
+                  <div className="text-sm font-bold text-theme">5+ Years</div>
                 </div>
               </div>
             </div>
 
-            <div className="absolute -bottom-4 -left-4 bg-dark-600 border border-white/10 rounded-xl px-3 py-2 shadow-xl animate-float animate-delay-300">
+            <div className="absolute -bottom-4 -left-4 floating-badge animate-float animate-delay-300">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🚀</span>
                 <div>
-                  <div className="text-xs text-gray-400">Projects</div>
-                  <div className="text-sm font-bold text-white">10+ Done</div>
+                  <div className="text-xs text-subtle">Projects</div>
+                  <div className="text-sm font-bold text-theme">10+ Done</div>
                 </div>
               </div>
             </div>
@@ -203,8 +197,8 @@ export default function Hero() {
       </div>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-        <span className="text-xs text-gray-600">Scroll down</span>
-        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <span className="text-xs text-subtle">Scroll down</span>
+        <svg className="w-4 h-4 text-subtle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </div>

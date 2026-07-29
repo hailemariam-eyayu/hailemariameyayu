@@ -19,14 +19,11 @@ function SkillBar({ name, level }: { name: string; level: number }) {
   return (
     <div ref={ref} className="reveal">
       <div className="flex justify-between mb-1.5">
-        <span className="text-sm text-gray-300 font-medium">{name}</span>
-        <span className="text-xs text-primary-400 font-mono">{level}%</span>
+        <span className="text-sm text-theme font-medium">{name}</span>
+        <span className="text-xs font-mono" style={{ color: 'var(--accent-light)' }}>{level}%</span>
       </div>
-      <div className="h-1.5 bg-dark-500 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-gradient-to-r from-primary-600 to-blue-400 rounded-full skill-bar"
-          style={{ width: `${level}%` }}
-        />
+      <div className="skill-track">
+        <div className="skill-bar" style={{ width: `${level}%` }} />
       </div>
     </div>
   );
@@ -40,7 +37,7 @@ export default function Skills() {
   useEffect(() => {
     fetchSkills()
       .then(setCategories)
-      .catch(() => { /* keep defaults */ });
+      .catch(() => {});
 
     fetchTechnologies()
       .then((data) => setTechBadges(data.map((t) => t.name)))
@@ -48,21 +45,20 @@ export default function Skills() {
   }, []);
 
   return (
-    <section id="skills" className="py-24 transition-colors duration-300" style={{ background: 'var(--surface)' }}>
+    <section id="skills" className="py-24 app-surface transition-colors duration-300">
       <div className="max-w-6xl mx-auto px-6">
         <div ref={titleRef} className="reveal text-center mb-16">
           <p className="section-subtitle">// what i work with</p>
           <h2 className="section-title">Skills & Technologies</h2>
-          <div className="w-16 h-1 bg-gradient-to-r from-primary-500 to-blue-400 rounded-full mx-auto mt-4" />
+          <div className="section-divider mx-auto mt-4" />
         </div>
 
-        {/* Skill bars grid — from DB */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {categories.map((cat) => (
             <div key={cat.id} className="card">
               <div className="flex items-center gap-3 mb-6">
                 <span className="text-2xl">{cat.icon}</span>
-                <h3 className="text-white font-semibold">{cat.title}</h3>
+                <h3 className="text-theme font-semibold">{cat.title}</h3>
               </div>
               <div className="space-y-4">
                 {cat.skills.map((skill) => (
@@ -73,10 +69,9 @@ export default function Skills() {
           ))}
         </div>
 
-        {/* Tech badges — from DB */}
         {techBadges.length > 0 && (
           <div className="text-center">
-            <p className="text-gray-500 text-sm mb-6 uppercase tracking-wider">All Technologies</p>
+            <p className="text-subtle text-sm mb-6 uppercase tracking-wider">All Technologies</p>
             <div className="flex flex-wrap gap-3 justify-center">
               {techBadges.map((tech) => (
                 <span key={tech} className="skill-badge">{tech}</span>
