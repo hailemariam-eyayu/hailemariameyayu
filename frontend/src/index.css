@@ -474,3 +474,147 @@ body {
   border-radius: 0.5rem;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* ============================================================
+   LIGHT MODE OVERRIDES — fix all hardcoded Tailwind dark classes
+   ============================================================ */
+
+/* Page background */
+.light body,
+.light .min-h-screen { background-color: #f8fafc !important; }
+.light .bg-dark-900  { background-color: #f8fafc !important; }
+.light .bg-dark-800  { background-color: #f1f5f9 !important; }
+.light .bg-dark-700  { background-color: #e2e8f0 !important; }
+.light .bg-dark-600  { background-color: #ffffff !important; }
+.light .bg-dark-500  { background-color: #f1f5f9 !important; }
+
+/* Section alternating bg */
+.light section[id]   { background-color: transparent; }
+
+/* Text */
+.light .text-white        { color: #0f172a !important; }
+.light .text-gray-100     { color: #1e293b !important; }
+.light .text-gray-200     { color: #334155 !important; }
+.light .text-gray-300     { color: #475569 !important; }
+.light .text-gray-400     { color: #64748b !important; }
+.light .text-gray-500     { color: #475569 !important; }
+.light .text-gray-600     { color: #64748b !important; }
+
+/* Borders */
+.light .border-white\/5   { border-color: #e2e8f0 !important; }
+.light .border-white\/10  { border-color: #e2e8f0 !important; }
+
+/* Project cards — bg + text */
+.light .card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 4px rgba(15,23,42,0.06) !important;
+}
+.light .card:hover {
+  border-color: rgba(59,130,246,0.3) !important;
+  box-shadow: 0 8px 24px -4px rgba(59,130,246,0.12) !important;
+}
+
+/* Project card title + description */
+.light .card h3,
+.light .card .text-white  { color: #0f172a !important; }
+.light .card .text-gray-500,
+.light .card p            { color: #475569 !important; }
+
+/* Icon buttons in project cards */
+.light .icon-btn,
+.light [class*="bg-dark-500"][class*="border-white"],
+.light .w-8.h-8.rounded-lg.bg-dark-500 {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #64748b !important;
+}
+
+/* Filter pills */
+.light .filter-pill,
+.light [class*="bg-dark-600"][class*="border-white"] {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+.light .filter-pill:hover  { color: #0f172a !important; border-color: rgba(59,130,246,0.4) !important; }
+.light .filter-pill.active { background: linear-gradient(135deg,#2563eb,#3b82f6) !important; color: white !important; }
+
+/* Tech tags */
+.light .tag {
+  background-color: rgba(37,99,235,0.08) !important;
+  color: #2563eb !important;
+  border-color: rgba(37,99,235,0.2) !important;
+}
+
+/* Skill badges */
+.light .skill-badge {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+.light .skill-badge:hover { color: #2563eb !important; border-color: rgba(37,99,235,0.3) !important; }
+
+/* Nav */
+.light .bg-glass-dark { background: rgba(255,255,255,0.92) !important; border-bottom: 1px solid #e2e8f0 !important; }
+.light .nav-link      { color: #64748b !important; }
+.light .nav-link:hover,
+.light .nav-link.active { color: #0f172a !important; }
+
+/* Hero */
+.light .status-badge { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #475569 !important; }
+.light .floating-badge { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
+.light .floating-badge .text-white { color: #0f172a !important; }
+.light .floating-badge .text-gray-400 { color: #64748b !important; }
+
+/* Input fields */
+.light .input-field {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+.light .input-field::placeholder { color: #94a3b8 !important; }
+.light .input-field:focus { border-color: rgba(37,99,235,0.5) !important; box-shadow: 0 0 0 3px rgba(37,99,235,0.1) !important; }
+
+/* About section info grid */
+.light .text-gray-600   { color: #64748b !important; }
+.light .text-primary-400 { color: #2563eb !important; }
+.light .text-primary-400.hover\:text-primary-300 { color: #2563eb !important; }
+
+/* Skills section */
+.light .skill-track { background-color: #e2e8f0 !important; }
+
+/* Certificates, StatsBar numbers */
+.light .text-white.font-bold,
+.light .font-bold.text-white { color: #0f172a !important; }
+
+/* Section subtitle (code comment style) */
+.light .section-subtitle { color: #2563eb !important; }
+.light .section-title    { color: #0f172a !important; }
+
+/* Footer */
+.light footer,
+.light footer span  { color: #475569 !important; }
+.light footer a:hover { color: #0f172a !important; }
+
+/* Admin panel */
+.light .bg-dark-800  { background-color: #ffffff !important; }
+.light .bg-dark-700  { background-color: #f8fafc !important; }
+.light .bg-dark-600  { background-color: #f1f5f9 !important; }
+
+/* Prose text in cards */
+.light p,
+.light li,
+.light span { color: inherit; }
+
+/* Primary accent links */
+.light a[class*="text-primary-400"] { color: #2563eb !important; }
+.light a[class*="text-primary-400"]:hover { color: #1d4ed8 !important; }
+
+/* Border separator */
+.light .border-t,
+.light [class*="border-white"] { border-color: #e2e8f0 !important; }
+
+/* Green status text (work section) */
+.light .text-green-400 { color: #16a34a !important; }

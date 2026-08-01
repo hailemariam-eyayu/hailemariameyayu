@@ -43,7 +43,7 @@ function ProjectCard({
           {/* Edit button */}
           <button
             onClick={() => onEdit(project)}
-            className="w-8 h-8 rounded-lg bg-dark-500 border border-white/10 flex items-center justify-center text-gray-400 hover:text-yellow-400 hover:border-yellow-500/40 transition-all duration-200"
+            className="icon-btn hover:text-yellow-500"
             aria-label="Edit project"
             title="Edit project details"
           >
@@ -58,7 +58,7 @@ function ProjectCard({
               href={project.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-lg bg-dark-500 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-primary-500/50 transition-all duration-200"
+              className="icon-btn"
               aria-label="GitHub repository"
               title="View source code on GitHub"
             >
@@ -74,7 +74,7 @@ function ProjectCard({
               href={project.live_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-lg bg-dark-500 border border-white/10 flex items-center justify-center text-gray-400 hover:text-green-400 hover:border-green-500/40 transition-all duration-200"
+              className="icon-btn hover:text-green-500"
               aria-label="Live demo"
               title="View live demo"
             >
@@ -87,10 +87,10 @@ function ProjectCard({
       </div>
 
       {/* Content */}
-      <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-primary-400 transition-colors">
+      <h3 className="font-semibold text-lg mb-2 group-hover:text-primary-400 transition-colors" style={{ color: 'var(--text)' }}>
         {project.title}
       </h3>
-      <p className="text-gray-500 text-sm leading-relaxed flex-grow mb-4">
+      <p className="text-sm leading-relaxed flex-grow mb-4" style={{ color: 'var(--text-muted)' }}>
         {project.description}
       </p>
 
@@ -144,11 +144,7 @@ export default function Projects({ projects, loading, onProjectUpdated }: Props)
           <button
             key={cat}
             onClick={() => setFilter(cat)}
-            className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-              filter === cat
-                ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                : 'bg-dark-600 border border-white/10 text-gray-400 hover:text-white hover:border-primary-500/30'
-            }`}
+            className={`filter-pill ${filter === cat ? 'active' : ''}`}
           >
             {CATEGORY_LABELS[cat] || cat.charAt(0).toUpperCase() + cat.slice(1)}
           </button>
