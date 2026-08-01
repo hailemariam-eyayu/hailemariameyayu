@@ -17,7 +17,8 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    // Strip spaces — Gmail app passwords are 16 chars with optional spaces
+    pass: (process.env.GMAIL_APP_PASSWORD || '').replace(/\s/g, ''),
   },
 });
 
@@ -507,6 +508,30 @@ app.delete('/api/projects/:id', requirePasscode, async (req, res) => {
   }
 });
 
+// ── Email test (admin) ────────────────────────────────────────────────────────
+app.get('/api/email-test', requirePasscode, async (req, res) => {
+  try {
+    const pass = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s/g, '');
+    if (!pass) return res.status(500).json({ error: 'GMAIL_APP_PASSWORD not set' });
+
+    const testTransporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: process.env.GMAIL_USER, pass },
+    });
+
+    await testTransporter.verify();
+    await testTransporter.sendMail({
+      from: `"Portfolio Test" <${process.env.GMAIL_USER}>`,
+      to: process.env.NOTIFY_EMAIL,
+      subject: '✅ Email test — developer portfolio backend',
+      text: `Email is working correctly.\n\nGMAIL_USER: ${process.env.GMAIL_USER}\nNOTIFY_EMAIL: ${process.env.NOTIFY_EMAIL}`,
+    });
+    res.json({ ok: true, message: `Test email sent to ${process.env.NOTIFY_EMAIL}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Inquiries ─────────────────────────────────────────────────────────────────
 app.post('/api/inquiries', async (req, res) => {
   try {
@@ -520,8 +545,12 @@ app.post('/api/inquiries', async (req, res) => {
       'INSERT INTO inquiries (name, email, message) VALUES ($1, $2, $3) RETURNING *',
       [name, email, message]
     );
-    // Send email notification (non-blocking)
-    sendInquiryNotification({ name, email, message });
+    // Send email notification (awaited so errors are visible in logs)
+    try {
+      await sendInquiryNotification({ name, email, message });
+    } catch (emailErr) {
+      console.error('[inquiry] Email send failed (inquiry still saved):', emailErr.message);
+    }
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Error creating inquiry:', err);
